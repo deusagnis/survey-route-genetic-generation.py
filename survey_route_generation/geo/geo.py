@@ -14,33 +14,6 @@ def calc_distance(*points):
     return geod.line_length(points_array[:, 1], points_array[:, 0])
 
 
-def segments_crossing(p00, p01, p10, p11, eps=0.000000001) -> bool:
-    """
-    Определить, пересекаются ли отрезки по координатам точек их концов.
-    """
-    m1 = np.cross(
-        [p11[0] - p10[0], p11[1] - p10[1]],
-        [p00[0] - p10[0], p00[1] - p10[1]]
-    )[0]
-    m2 = np.cross(
-        [p11[0] - p10[0], p11[1] - p10[1]],
-        [p01[0] - p10[0], p01[1] - p10[1]]
-    )[0]
-    m3 = np.cross(
-        [p01[0] - p00[0], p01[1] - p00[1]],
-        [p10[0] - p00[0], p10[1] - p00[1]]
-    )[0]
-    m4 = np.cross(
-        [p01[0] - p00[0], p01[1] - p00[1]],
-        [p11[0] - p00[0], p11[1] - p00[1]]
-    )[0]
-
-    if m1 * m2 < eps and m3 * m4 < eps:
-        return True
-
-    return False
-
-
 def calc_3_points_angle(p1, p2, p3):
     """
     Вычислить величину угла, образованного тремя точками.
