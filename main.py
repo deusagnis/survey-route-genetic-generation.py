@@ -1,6 +1,6 @@
-from vehicle_data import VehicleData
-from way_settings import WaySettings
-from route_generator import RouteGenerator
+from survey_route_generation.data.vehicle_data import VehicleData
+from survey_route_generation.data.way_settings import WaySettings
+from survey_route_generation.route_generator import RouteGenerator
 
 # init vehicle data
 vehicle_data = VehicleData(1, 40, 1000)
