@@ -1,3 +1,6 @@
+"""
+Проверка принадлежности точки полигону методом трассировки луча.
+"""
 from survey_route_generation.geo.geo import segments_crossing
 
 
@@ -8,12 +11,18 @@ class PointInPolygon:
         self.polygon = polygon
 
     def _gen_point_ray(self):
+        """
+        Создать условный луч из целевой точки.
+        """
         return [
             self.point,
             [90, 180]
         ]
 
     def _calc_crossings(self):
+        """
+        Подсчитать количество пересечений луча границ полигона.
+        """
         self._crossing_counter = 0
         for i in range(len(self.polygon)):
             prev_point_index = i - 1 if i > 0 else len(self.polygon) - 1
@@ -24,10 +33,11 @@ class PointInPolygon:
                 self._crossing_counter += 1
 
     def inside(self, point) -> bool:
+        """
+        Принадлежит ли точка полигону.
+        """
         self.point = point
-        # выбираем луч
         self._point_ray = self._gen_point_ray()
-        # считаем количество пересечений луча и рёбер
         self._calc_crossings()
-        # если нечётно то внутри
+
         return self._crossing_counter % 2 != 0

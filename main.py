@@ -1,12 +1,16 @@
+"""
+Использование Генератора маршрута обследования на примере
+"""
+
 from survey_route_generation.data.vehicle_data import VehicleData
-from survey_route_generation.data.way_settings import WaySettings
+from survey_route_generation.data.way_settings import MissionSettings
 from survey_route_generation.route_generator import RouteGenerator
 
 # init vehicle data
-vehicle_data = VehicleData(1, 40, 1000)
+vehicle_data = VehicleData(5000)
 
 # init way settings
-way_settings = WaySettings(
+mission_settings = MissionSettings(
     [54.9611806, 20.21824722222222],
     [54.9331722, 20.370066666666666]
 )
@@ -19,7 +23,7 @@ survey_area_points = [
     [55.836542, 20.503575],
 ]
 
-route_generator = RouteGenerator(vehicle_data, way_settings, survey_area_points)
+route_generator = RouteGenerator(vehicle_data, mission_settings, survey_area_points)
 
 if __name__ == '__main__':
     route_generator.generate_route()

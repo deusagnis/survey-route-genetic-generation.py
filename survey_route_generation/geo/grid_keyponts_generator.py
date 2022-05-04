@@ -1,3 +1,6 @@
+"""
+Создание сетки ключевых точек по заданным границам с заданными шагами по широте и долготе.
+"""
 import numpy as np
 
 
@@ -16,5 +19,4 @@ class GridKeypointsGenerator:
         return grid
 
     def gen(self):
-        # двойным циклом с шагами создаём ключевые точки
         return self._gen_grid()

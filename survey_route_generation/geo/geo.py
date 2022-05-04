@@ -1,12 +1,23 @@
 import math
 import numpy as np
+from pyproj import Geod
+
+# Создаём геоид стандарта WGS84.
+geod = Geod(ellps="WGS84")
 
 
-def calc_distance(point1, point2):
-    return math.sqrt(pow(point1[0] + point2[0], 2) + pow(point1[1] + point2[1], 2))
+def calc_distance(*points):
+    """
+    Вычислить геодезическое расстояние вдоль линии, заданной точками.
+    """
+    points_array = np.array(points)
+    return geod.line_length(points_array[:, 1], points_array[:, 0])
 
 
-def segments_crossing(p00, p01, p10, p11, eps=0.000000001):
+def segments_crossing(p00, p01, p10, p11, eps=0.000000001) -> bool:
+    """
+    Определить, пересекаются ли отрезки по координатам точек их концов.
+    """
     m1 = np.cross(
         [p11[0] - p10[0], p11[1] - p10[1]],
         [p00[0] - p10[0], p00[1] - p10[1]]
@@ -31,6 +42,9 @@ def segments_crossing(p00, p01, p10, p11, eps=0.000000001):
 
 
 def calc_3_points_angle(p1, p2, p3):
+    """
+    Вычислить величину угла, образованного тремя точками.
+    """
     a = calc_distance(p2, p1)
     b = calc_distance(p2, p3)
     c = calc_distance(p1, p3)
@@ -39,6 +53,9 @@ def calc_3_points_angle(p1, p2, p3):
 
 
 def gen_borders(area_points):
+    """
+    Определить прямоугольные границы по точкам.
+    """
     lat_bot = None
     lat_top = None
     lon_left = None
@@ -60,3 +77,15 @@ def gen_borders(area_points):
         "lon_left": lon_left,
         "lon_right": lon_right
     }
+
+
+def gen_grid(borders, lat_step, lon_step):
+    """
+    Создать сетку ключевых точек по заданным границам с заданными шагами по широте и долготе.
+    """
+    grid = np.array([])
+    for lat in np.arange(borders["lat_bot"], borders["lat_top"] + lat_step, lat_step):
+        for lon in np.arange(borders["lon_left"], borders["lon_right"] + lon_step, lon_step):
+            np.append(grid, [lat, lon])
+
+    return grid

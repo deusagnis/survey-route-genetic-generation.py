@@ -1,7 +1,10 @@
+"""
+Нахождение точки полигона, ближайшей к заданной.
+"""
 from survey_route_generation.geo.geo import calc_distance
 
 
-class PolygonNearestPoint:
+class PolygonNearestPointToPoint:
     _vertices_point_distances = []
     _2_nearest_points = []
 
@@ -10,10 +13,16 @@ class PolygonNearestPoint:
         self.out_point = out_point
 
     def _calc_vertices_point_distances(self):
+        """
+        Посчитать расстояния от вершин полигона до заданной точки.
+        """
         for point in self.polygon_vertices:
             self._vertices_point_distances.append(calc_distance(point, self.out_point))
 
     def _find_2_nearest_points(self):
+        """
+        Найти две вершины полигона, ближайшие к заданной.
+        """
         first = None
         second = None
         for point_index in range(len(self._vertices_point_distances)):
@@ -31,6 +40,9 @@ class PolygonNearestPoint:
         self._2_nearest_points = [first, second]
 
     def _choose_nearest(self):
+        """
+        Выбрать ближайшую из двух вершин полигона к заданной точке или середину между этими вершинами.
+        """
         if self._2_nearest_points[0][1] != self._2_nearest_points[1][1]:
             return self.polygon_vertices[self._2_nearest_points[0][0]]
         else:
@@ -40,11 +52,10 @@ class PolygonNearestPoint:
             return [(point1[0] + point2[0]) / 2, (point1[1] + point2[1]) / 2]
 
     def find(self):
-        # посчитать расстояния между вершинами области и точкой вылета
+        """
+        Найти ближайшую точку полигона к заданной.
+        """
         self._calc_vertices_point_distances()
-        # найти два минимальных расстояния
         self._find_2_nearest_points()
 
-        # если они не равны, то выбрать минимальное
-        # если они равны, то выбрать точку середины между ними
         return self._choose_nearest()
