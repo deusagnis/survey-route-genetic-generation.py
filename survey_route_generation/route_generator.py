@@ -1,8 +1,8 @@
-from polygon_nearest_point import PolygonNearestPoint
-from grid_keyponts_generator import GridKeypointsGenerator
-from geo import calc_distance, gen_borders
-from point_in_polygon import PointInPolygon
-from genetic_optimal_route_finder import GeneticOptimalRouteFinder
+from survey_route_generation.geo.polygon_nearest_point import PolygonNearestPoint
+from survey_route_generation.geo.grid_keyponts_generator import GridKeypointsGenerator
+from survey_route_generation.geo.geo import calc_distance, gen_borders
+from survey_route_generation.geo.point_in_polygon import PointInPolygon
+from survey_route_generation.genetic.genetic_optimal_route_finder import GeneticOptimalRouteFinder
 
 
 class RouteGenerator:
@@ -47,7 +47,6 @@ class RouteGenerator:
             average_lat_height / lat_degrees_delta,
             average_lon_width / lon_degrees_delta
         ]
-
 
     def _choose_in_point(self):
         self._area_in_point = PolygonNearestPoint(self.survey_area_points, self.way_settings.start_point)

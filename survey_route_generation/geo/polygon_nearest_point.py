@@ -1,4 +1,4 @@
-from geo import calc_distance
+from survey_route_generation.geo.geo import calc_distance
 
 
 class PolygonNearestPoint:

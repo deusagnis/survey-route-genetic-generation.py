@@ -1,6 +1,6 @@
 import random
-from geo import calc_distance, calc_3_points_angle
-from genetic_algorithm import GeneticAlgorithm
+from survey_route_generation.geo.geo import calc_distance, calc_3_points_angle
+from survey_route_generation.genetic.genetic_algorithm import GeneticAlgorithm
 
 
 class GeneticOptimalRouteFinder:

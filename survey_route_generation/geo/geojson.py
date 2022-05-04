@@ -5,9 +5,7 @@ from os.path import exists
 class GeoJson:
     geo = {
         "type": "FeatureCollection",
-        "features": [
-
-        ]
+        "features": []
     }
 
     def _add_feature(self, name, geometry_type, coordinates):

@@ -1,4 +1,4 @@
-from geo import segments_crossing
+from survey_route_generation.geo.geo import segments_crossing
 
 
 class PointInPolygon:
