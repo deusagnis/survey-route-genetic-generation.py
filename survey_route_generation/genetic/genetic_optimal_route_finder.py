@@ -157,6 +157,26 @@ class GeneticOptimalRouteFinder:
 
         return route
 
+    def _genotype_to_route(self, genotype):
+        route = []
+        for gen in genotype:
+            route.append(self._get_gen_point(gen))
+
+        return np.array(route)
+
+    def _find_best_genotype(self):
+        genetic_algo = GeneticAlgorithm(
+            self._points_genome,
+            self._route_fitness,
+            lambda a: a,
+            self._cross_routes,
+            self._mutate_route,
+            64,
+            0.6
+        )
+
+        self._best_genotype = genetic_algo.find_best_genotype()
+
     def _calc_max_turns_angle(self):
         """
         Посчитать максимальную величину суммы углов маршрута.
@@ -201,15 +221,6 @@ class GeneticOptimalRouteFinder:
         self._count_mutation_swaps()
         self._calc_route_max_distance()
         self._calc_max_turns_angle()
+        self._find_best_genotype()
 
-        genetic_algo = GeneticAlgorithm(
-            self._points_genome,
-            self._route_fitness,
-            lambda a: a,
-            self._cross_routes,
-            self._mutate_route,
-            64,
-            0.6
-        )
-
-        return genetic_algo.find_best_genotype()
+        return self._genotype_to_route(self._best_genotype)

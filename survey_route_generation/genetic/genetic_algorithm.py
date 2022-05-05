@@ -147,10 +147,9 @@ class GeneticAlgorithm:
         children = []
         for genotypes_group in self._parent_groups:
             children.append(self.crossing_func(genotypes_group))
-        print("before", self._alive_counter, self._current_population.shape)
+
         if len(children) > 1:
             self._current_population = np.concatenate((self._current_population, np.array(children)))
-        print("after", self._current_population.shape)
 
     def _mutate_genotypes(self):
         """
