@@ -88,34 +88,37 @@ class GeneticAlgorithm:
         """
         Создать группы родителей популяции по принципу панмиксии.
         """
-        self._parent_groups = np.array([])
         self._create_shuffled_genotype_indexes()
         self._calc_groups_count()
 
-        group = np.array([])
+        parent_groups = []
+        group = []
         for genotype_index in self._genotype_indexes[:self._parent_groups_count * self.parents_count]:
-            group = np.append(group, self._current_population[genotype_index])
-            if group.size == self.parents_count:
-                self._parent_groups = np.append(self._parent_groups, group)
-                group = np.array([])
+            group.append(self._current_population[genotype_index])
+            if len(group) == self.parents_count:
+                parent_groups.append(np.array(group))
+                group = []
+
+        self._parent_groups = np.array(parent_groups)
 
     def _choose_best_estimations(self):
         """
         Выбрать лучшие показатели приспособленности при отборе популяции.
         """
         alive_count = math.floor(self._current_population.size * self.selection_rate)
-        population_estimation = sorted(self._population_estimation, reverse=True)
+        population_estimation = np.flip(np.sort(self._population_estimation))
+
         self._best_estimations = population_estimation[:alive_count]
 
     def _keep_alive_population(self):
         """
         Оставить в живых часть популяции после естественного отбора.
         """
-        alive_population = np.array([])
+        alive_population = []
         for estimation in self._best_estimations:
             genotype_index = np.where(self._population_estimation == estimation)[0][0]
-            alive_population = np.append(alive_population, self._current_population[genotype_index])
-        self._current_population = alive_population
+            alive_population.append(self._current_population[genotype_index])
+        self._current_population = np.array(alive_population)
 
     def _select_alive_genotypes(self):
         """
@@ -139,11 +142,11 @@ class GeneticAlgorithm:
         """
         Скрестить особей групп - размножение.
         """
-        children = np.array([])
+        children = []
         for genotypes_group in self._parent_groups:
-            children = np.append(children, self.crossing_func(genotypes_group))
+            children.append(self.crossing_func(genotypes_group))
 
-        self._current_population = np.concantenate(self._current_population, children)
+        self._current_population = np.concantenate(self._current_population, np.array(children))
 
     def _mutate_genotypes(self):
         """
@@ -184,9 +187,11 @@ class GeneticAlgorithm:
         """
         Оценить приспособленность особей текущей популяции.
         """
-        self._population_estimation = np.array([])
+        population_estimation = []
         for genotype in self._current_population:
-            self._population_estimation = np.append(self._population_estimation, self.fitness_func(genotype))
+            population_estimation.append(self.fitness_func(genotype))
+
+        self._population_estimation = np.array(population_estimation)
 
     def _evolution(self):
         """
@@ -199,10 +204,13 @@ class GeneticAlgorithm:
         """
         Создать первую популяцию.
         """
+        population = []
         for i in range(self.population_size):
             genotype = self.genome.copy()
             np.random.shuffle(genotype)
-            self._current_population = np.append(self._current_population, genotype)
+            population.append(genotype)
+
+        self._current_population = np.array(population)
 
     def find_best_genotype(self):
         """

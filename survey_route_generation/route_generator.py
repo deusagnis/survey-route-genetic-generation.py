@@ -20,13 +20,15 @@ class RouteGenerator:
         """
         Отфильтровать ключевые точки, оставив только точки, доступные для полёта.
         """
-        self._inside_grid_key_points = np.array([])
         polygon = Polygon(self.survey_area_points)
 
+        inside_points = []
         for key_point in self._grid_keypoints:
             point = Point(key_point[0], key_point[1])
             if polygon.contains(point):
-                self._inside_grid_key_points = np.append(self._inside_grid_key_points, key_point)
+                inside_points.append(key_point)
+
+        self._inside_grid_key_points = np.array(inside_points)
 
     def _gen_keypoint_grid(self):
         """
@@ -39,7 +41,7 @@ class RouteGenerator:
         """
         Вычислить расстояние между ключевыми точками.
         """
-        self._keypoint_distance = self.vehicle_data["vision_width"] * (1 - 0.05)
+        self._keypoint_distance = self.vehicle_data.vision_width * (1 - 0.05)
 
     def _gen_area_borders(self):
         self._area_borders = gen_borders(self.survey_area_points)

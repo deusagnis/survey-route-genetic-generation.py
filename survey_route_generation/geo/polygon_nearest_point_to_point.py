@@ -15,12 +15,12 @@ class PolygonNearestPointToPoint:
         """
         Посчитать расстояния от вершин полигона до заданной точки.
         """
-        self._vertices_point_distances = np.array([])
+        vertices_point_distances = []
 
         for point in self.polygon_vertices:
-            self._vertices_point_distances = np.append(
-                self._vertices_point_distances, calc_distance(point, self.out_point)
-            )
+            vertices_point_distances.append(calc_distance(point, self.out_point))
+
+        self._vertices_point_distances = np.array(vertices_point_distances)
 
     def _find_2_nearest_points(self):
         """

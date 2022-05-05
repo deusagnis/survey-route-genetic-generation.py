@@ -134,16 +134,15 @@ class GeneticOptimalRouteFinder:
         """
         points_usage = np.full(self.route_points.size, False)
 
-        child_genotype = np.array([])
-
+        child_genotype = []
         for i in range(self.route_points.size):
             for genotype in route_group:
                 point_index = genotype[i]
                 if not points_usage[point_index]:
-                    child_genotype = np.append(child_genotype, point_index)
+                    child_genotype.append(point_index)
                     points_usage[point_index] = True
 
-        return child_genotype
+        return np.array(child_genotype)
 
     def _mutate_route(self, route):
         """
