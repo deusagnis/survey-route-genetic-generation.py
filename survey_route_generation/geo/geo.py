@@ -52,18 +52,6 @@ def gen_borders(area_points):
     }
 
 
-def gen_grid(borders, lat_step, lon_step):
-    """
-    Создать сетку ключевых точек по заданным границам с заданными шагами по широте и долготе.
-    """
-    grid = np.array([])
-    for lat in np.arange(borders["lat_bot"], borders["lat_top"] + lat_step, lat_step):
-        for lon in np.arange(borders["lon_left"], borders["lon_right"] + lon_step, lon_step):
-            grid = np.append(grid, [lat, lon])
-
-    return grid
-
-
 def calc_rectangle_average_degree_dist(rectangle_borders):
     """
     Вычислить среднюю протяжённость одного градуса по широте и долготе.

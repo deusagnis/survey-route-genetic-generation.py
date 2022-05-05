@@ -1,22 +1,68 @@
 """
-Создание сетки ключевых точек по заданным границам с заданными шагами по широте и долготе.
+Создание сетки ключевых точек по заданным границам прямоугольной области.
 """
 import numpy as np
 
+from survey_route_generation.geo.geo import calc_rectangle_average_degree_dist
 
-class GridKeypointsGenerator:
-    def __init__(self, borders, lat_step, lon_step):
-        self.borders = borders
-        self.lon_step = lon_step
-        self.lat_step = lat_step
+
+class RectangleGridKeypointsGenerator:
+    def __init__(self, rectangle_borders, keypoint_distance):
+        self.rectangle_borders = rectangle_borders
+        self.keypoint_distance = keypoint_distance
+
+    def _calc_grid_steps(self):
+        """
+        Вычислить шаги для координатной сетки.
+        """
+        self._lat_step = self.keypoint_distance / self._average_degree_distances[0]
+        self._lon_step = self.keypoint_distance / self._average_degree_distances[1]
+
+    def _gen_keypoint_grid(self):
+        """
+        Сгенерировать сетку ключевых точек.
+        """
+        self._grid_keypoints = np.array([])
+        for lat in np.arange(
+                self.rectangle_borders["lat_bot"],
+                self.rectangle_borders["lat_top"] + self._lat_step,
+                self._lat_step
+        ):
+            for lon in np.arange(
+                    self.rectangle_borders["lon_left"],
+                    self.rectangle_borders["lon_right"] + self._lon_step,
+                    self._lon_step
+            ):
+                self._grid_keypoints = np.append(self._grid_keypoints, [lat, lon])
+
+    def _calc_average_degree_distances(self):
+        """
+        Посчитать среднюю протяжённость градусов по широте и долготе в прямоугольной области.
+        """
+        self._average_degree_distances = calc_rectangle_average_degree_dist(self.rectangle_borders)
 
     def _gen_grid(self):
         grid = np.array([])
-        for lat in np.arange(self.borders["lat_bot"], self.borders["lat_top"] + self.lat_step, self.lat_step):
-            for lon in np.arange(self.borders["lon_left"], self.borders["lon_right"] + self.lon_step, self.lon_step):
+        for lat in np.arange(
+                self.rectangle_borders["lat_bot"],
+                self.rectangle_borders["lat_top"] + self._lat_step,
+                self._lat_step
+        ):
+            for lon in np.arange(
+                    self.rectangle_borders["lon_left"],
+                    self.rectangle_borders["lon_right"] + self._lon_step,
+                    self._lon_step
+            ):
                 grid = np.append(grid, [lat, lon])
 
         return grid
 
     def gen(self):
-        return self._gen_grid()
+        """
+        Сгенерировать ключевые точки.
+        """
+        self._calc_average_degree_distances()
+        self._calc_grid_steps()
+        self._gen_keypoint_grid()
+
+        return self._grid_keypoints
