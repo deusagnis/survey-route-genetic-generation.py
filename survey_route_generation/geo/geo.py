@@ -62,3 +62,35 @@ def gen_grid(borders, lat_step, lon_step):
             grid = np.append(grid, [lat, lon])
 
     return grid
+
+
+def calc_rectangle_average_degree_dist(rectangle_borders):
+    """
+    Вычислить среднюю протяжённость одного градуса по широте и долготе.
+    """
+    lat_left_height = calc_distance(
+        (rectangle_borders["lat_bot"], rectangle_borders["lon_left"]),
+        (rectangle_borders["lat_top"], rectangle_borders["lon_left"])
+    )
+    lat_right_height = calc_distance(
+        (rectangle_borders["lat_bot"], rectangle_borders["lon_right"]),
+        (rectangle_borders["lat_top"], rectangle_borders["lon_right"])
+    )
+    lon_bot_width = calc_distance(
+        (rectangle_borders["lat_bot"], rectangle_borders["lon_left"]),
+        (rectangle_borders["lat_bot"], rectangle_borders["lon_right"])
+    )
+    lon_top_width = calc_distance(
+        (rectangle_borders["lat_top"], rectangle_borders["lon_left"]),
+        (rectangle_borders["lat_top"], rectangle_borders["lon_right"])
+    )
+    average_lat_height = (lat_left_height + lat_right_height) / 2
+    average_lon_width = (lon_bot_width + lon_top_width) / 2
+
+    lat_degrees_delta = math.fabs(rectangle_borders["lat_top"] - rectangle_borders["lat_bot"])
+    lon_degrees_delta = math.fabs(rectangle_borders["lon_left"] - rectangle_borders["lon_right"])
+
+    return [
+        average_lat_height / lat_degrees_delta,
+        average_lon_width / lon_degrees_delta
+    ]

@@ -4,7 +4,7 @@
 import numpy as np
 
 from survey_route_generation.geo.polygon_nearest_point_to_point import PolygonNearestPointToPoint
-from survey_route_generation.geo.geo import calc_distance, gen_borders, gen_grid
+from survey_route_generation.geo.geo import calc_rectangle_average_degree_dist, gen_borders, gen_grid
 from survey_route_generation.genetic.genetic_optimal_route_finder import GeneticOptimalRouteFinder
 from shapely.geometry import Point, Polygon
 
@@ -19,7 +19,7 @@ class RouteGenerator:
         """
         Вычислить шаги для координатной сетки.
         """
-        return [
+        self._grid_steps = [
             self._keypoint_distance / self._average_degree_distances[0],
             self._keypoint_distance / self._average_degree_distances[1],
         ]
@@ -28,38 +28,7 @@ class RouteGenerator:
         """
         Вычислить расстояние между ключевыми точками.
         """
-        return self.vehicle_data["vision_width"] * (1 - 0.05)
-
-    def _calc_average_degree_dist(self):
-        """
-        Вычислить среднюю протяжённость одного градуса по широте и долготе.
-        """
-        lat_left_height = calc_distance(
-            (self._area_borders["lat_bot"], self._area_borders["lon_left"]),
-            (self._area_borders["lat_top"], self._area_borders["lon_left"])
-        )
-        lat_right_height = calc_distance(
-            (self._area_borders["lat_bot"], self._area_borders["lon_right"]),
-            (self._area_borders["lat_top"], self._area_borders["lon_right"])
-        )
-        lon_bot_width = calc_distance(
-            (self._area_borders["lat_bot"], self._area_borders["lon_left"]),
-            (self._area_borders["lat_bot"], self._area_borders["lon_right"])
-        )
-        lon_top_width = calc_distance(
-            (self._area_borders["lat_top"], self._area_borders["lon_left"]),
-            (self._area_borders["lat_top"], self._area_borders["lon_right"])
-        )
-        average_lat_height = (lat_left_height + lat_right_height) / 2
-        average_lon_width = (lon_bot_width + lon_top_width) / 2
-
-        lat_degrees_delta = self._area_borders["lat_top"] - self._area_borders["lat_bot"]
-        lon_degrees_delta = self._area_borders["lon_left"] - self._area_borders["lon_right"]
-
-        return [
-            average_lat_height / lat_degrees_delta,
-            average_lon_width / lon_degrees_delta
-        ]
+        self._keypoint_distance = self.vehicle_data["vision_width"] * (1 - 0.05)
 
     def _choose_in_point(self):
         """
@@ -81,14 +50,23 @@ class RouteGenerator:
         self._choose_out_point()
 
     def _gen_keypoint_grid(self):
+        self._grid_keypoints = gen_grid(self._area_borders, self._grid_steps[0], self._grid_steps[1])
+
+    def _calc_average_degree_distances(self):
+        self._average_degree_distances = calc_rectangle_average_degree_dist(self._area_borders)
+
+    def _gen_area_borders(self):
+        self._area_borders = gen_borders(self.survey_area_points)
+
+    def _gen_keypoints(self):
         """
         Сгенерировать сетку ключевых точек, покрывающую область обследования.
         """
-        self._area_borders = gen_borders(self.survey_area_points)
-        self._average_degree_distances = self._calc_average_degree_dist()
-        self._keypoint_distance = self._calc_keypoint_distance()
-        self._grid_steps = self._calc_grid_steps()
-        self._grid_keypoints = gen_grid(self._area_borders, self._grid_steps[0], self._grid_steps[1])
+        self._gen_area_borders()
+        self._calc_average_degree_distances()
+        self._calc_keypoint_distance()
+        self._calc_grid_steps()
+        self._gen_keypoint_grid()
 
     def _filter_keypoints(self):
         """
@@ -123,6 +101,6 @@ class RouteGenerator:
         Составить маршрут обследования зоны поиска.
         """
         self._choose_in_out_points()
-        self._gen_keypoint_grid()
+        self._gen_keypoints()
 
         return self._find_optimal_route()
