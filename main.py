@@ -1,6 +1,7 @@
 """
 Использование Генератора маршрута обследования на примере
 """
+import numpy as np
 
 from survey_route_generation.data.vehicle_data import VehicleData
 from survey_route_generation.data.way_settings import MissionSettings
@@ -16,12 +17,12 @@ mission_settings = MissionSettings(
 )
 
 # init survey area points
-survey_area_points = [
+survey_area_points = np.array([
     [55.247697, 19.699547],
     [55.559281, 19.056831],
     [55.974931, 19.660008],
     [55.836542, 20.503575],
-]
+])
 
 route_generator = RouteGenerator(vehicle_data, mission_settings, survey_area_points)
 

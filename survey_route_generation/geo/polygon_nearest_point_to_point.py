@@ -1,13 +1,12 @@
 """
 Нахождение точки полигона, ближайшей к заданной.
 """
+import numpy as np
+
 from survey_route_generation.geo.geo import calc_distance
 
 
 class PolygonNearestPointToPoint:
-    _vertices_point_distances = []
-    _2_nearest_points = []
-
     def __init__(self, polygon_vertices, out_point):
         self.polygon_vertices = polygon_vertices
         self.out_point = out_point
@@ -16,8 +15,12 @@ class PolygonNearestPointToPoint:
         """
         Посчитать расстояния от вершин полигона до заданной точки.
         """
+        self._vertices_point_distances = np.array([])
+
         for point in self.polygon_vertices:
-            self._vertices_point_distances.append(calc_distance(point, self.out_point))
+            self._vertices_point_distances = np.append(
+                self._vertices_point_distances, calc_distance(point, self.out_point)
+            )
 
     def _find_2_nearest_points(self):
         """
@@ -25,7 +28,7 @@ class PolygonNearestPointToPoint:
         """
         first = None
         second = None
-        for point_index in range(len(self._vertices_point_distances)):
+        for point_index in range(self._vertices_point_distances.size):
             point_dist = self._vertices_point_distances[point_index]
             if first is None:
                 first = [point_index, point_dist]

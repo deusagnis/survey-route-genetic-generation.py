@@ -11,10 +11,10 @@ class GridKeypointsGenerator:
         self.lat_step = lat_step
 
     def _gen_grid(self):
-        grid = []
+        grid = np.array([])
         for lat in np.arange(self.borders["lat_bot"], self.borders["lat_top"] + self.lat_step, self.lat_step):
             for lon in np.arange(self.borders["lon_left"], self.borders["lon_right"] + self.lon_step, self.lon_step):
-                grid.append([lat, lon])
+                grid = np.append(grid, [lat, lon])
 
         return grid
 

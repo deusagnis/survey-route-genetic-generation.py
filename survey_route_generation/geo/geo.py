@@ -59,6 +59,6 @@ def gen_grid(borders, lat_step, lon_step):
     grid = np.array([])
     for lat in np.arange(borders["lat_bot"], borders["lat_top"] + lat_step, lat_step):
         for lon in np.arange(borders["lon_left"], borders["lon_right"] + lon_step, lon_step):
-            np.append(grid, [lat, lon])
+            grid = np.append(grid, [lat, lon])
 
     return grid

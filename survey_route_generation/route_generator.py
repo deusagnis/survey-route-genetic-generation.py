@@ -1,6 +1,8 @@
 """
 Создание и оптимизация маршрута обследования заданной зоны.
 """
+import numpy as np
+
 from survey_route_generation.geo.polygon_nearest_point_to_point import PolygonNearestPointToPoint
 from survey_route_generation.geo.geo import calc_distance, gen_borders, gen_grid
 from survey_route_generation.genetic.genetic_optimal_route_finder import GeneticOptimalRouteFinder
@@ -92,13 +94,13 @@ class RouteGenerator:
         """
         Отфильтровать ключевые точки, оставив только точки, доступные для полёта.
         """
-        self._inside_grid_key_points = []
+        self._inside_grid_key_points = np.array([])
         polygon = Polygon(self.survey_area_points)
 
         for key_point in self._grid_keypoints:
             point = Point(key_point[0], key_point[1])
             if polygon.contains(point):
-                self._inside_grid_key_points.append(key_point)
+                self._inside_grid_key_points = np.append(self._inside_grid_key_points, key_point)
 
     def _find_optimal_route(self):
         """
