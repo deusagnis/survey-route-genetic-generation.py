@@ -21,7 +21,7 @@ class RectangleGridKeypointsGenerator:
         """
         Сгенерировать сетку ключевых точек.
         """
-        self._grid_keypoints = []
+        grid_keypoints = []
         for lat in np.arange(
                 self.rectangle_borders["lat_bot"],
                 self.rectangle_borders["lat_top"] + self._lat_step,
@@ -32,9 +32,9 @@ class RectangleGridKeypointsGenerator:
                     self.rectangle_borders["lon_right"] + self._lon_step,
                     self._lon_step
             ):
-                self._grid_keypoints.append([lat, lon])
+                grid_keypoints.append([lat, lon])
 
-        self._grid_keypoints = np.array(self._grid_keypoints)
+        self._grid_keypoints = np.array(grid_keypoints)
 
     def _calc_average_degree_distances(self):
         """

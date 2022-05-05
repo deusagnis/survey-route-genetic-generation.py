@@ -28,7 +28,7 @@ class PolygonNearestPointToPoint:
         """
         first = None
         second = None
-        for point_index in range(self._vertices_point_distances.size):
+        for point_index in range(self._vertices_point_distances.shape[0]):
             point_dist = self._vertices_point_distances[point_index]
             if first is None:
                 first = [point_index, point_dist]

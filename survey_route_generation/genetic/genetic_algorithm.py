@@ -46,20 +46,19 @@ class GeneticAlgorithm:
         self.parents_choice_type = parents_choice_type
         self.max_lifecycles = max_lifecycles
 
-        self._current_population = np.array([])
         self._lifecycle_counter = 0
 
     def _calc_mutants_count(self):
         """
         Подсчитать количества мутантов для популяции.
         """
-        self._mutants_count = math.floor(self._current_population.size * self.mutants_rate)
+        self._mutants_count = math.floor(self._current_population.shape[0] * self.mutants_rate)
 
     def _create_shuffled_genotype_indexes(self):
         """
         Создать перемешанный массив индексов генотипа.
         """
-        genotype_indexes = np.arange(self._current_population.size)
+        genotype_indexes = np.arange(self._current_population.shape[0])
         np.random.shuffle(genotype_indexes)
 
         self._genotype_indexes = genotype_indexes
@@ -68,7 +67,7 @@ class GeneticAlgorithm:
         """
         Подсчитать количество групп родителей в популяции.
         """
-        self._parent_groups_count = math.floor(self._current_population.size / self.parents_count)
+        self._parent_groups_count = math.floor(self._current_population.shape[0] / self.parents_count)
 
     def _create_inbreeding_parent_groups(self):
         """
@@ -101,14 +100,17 @@ class GeneticAlgorithm:
 
         self._parent_groups = np.array(parent_groups)
 
+    def _calc_alive_counter(self):
+        self._alive_counter = math.floor(self._current_population.shape[0] * self.selection_rate)
+
     def _choose_best_estimations(self):
         """
         Выбрать лучшие показатели приспособленности при отборе популяции.
         """
-        alive_count = math.floor(self._current_population.size * self.selection_rate)
+        self._calc_alive_counter()
         population_estimation = np.flip(np.sort(self._population_estimation))
 
-        self._best_estimations = population_estimation[:alive_count]
+        self._best_estimations = population_estimation[:self._alive_counter]
 
     def _keep_alive_population(self):
         """
@@ -145,8 +147,10 @@ class GeneticAlgorithm:
         children = []
         for genotypes_group in self._parent_groups:
             children.append(self.crossing_func(genotypes_group))
-
-        self._current_population = np.concantenate(self._current_population, np.array(children))
+        print("before", self._alive_counter, self._current_population.shape)
+        if len(children) > 1:
+            self._current_population = np.concatenate((self._current_population, np.array(children)))
+        print("after", self._current_population.shape)
 
     def _mutate_genotypes(self):
         """
@@ -157,6 +161,9 @@ class GeneticAlgorithm:
         for genotype_index in self._genotype_indexes[:self._mutants_count]:
             mutant = self.mutation_func(self._current_population[genotype_index])
             self._current_population[genotype_index] = mutant
+
+    def _inc_lifecycle_counter(self):
+        self._lifecycle_counter += 1
 
     def _evolve(self):
         """
@@ -172,14 +179,16 @@ class GeneticAlgorithm:
         """
         Проверить возможность продолжения эволюции.
         """
-        return self._lifecycle_counter < self.max_lifecycles
+
+        return (self._lifecycle_counter < self.max_lifecycles
+                and (not hasattr(self, "_alive_counter") or self._alive_counter > 2))
 
     def _choose_best_genotype(self):
         """
         Выбрать наиболее приспособленный генотип из текущей популяции.
         """
         max_estimation = np.max(self._population_estimation)
-        genotype_index = np.where(self._current_population == max_estimation)[0][0]
+        genotype_index = np.where(self._population_estimation == max_estimation)[0][0]
 
         return self._current_population[genotype_index]
 
@@ -199,6 +208,8 @@ class GeneticAlgorithm:
         """
         while self._continue_evolution():
             self._evolve()
+            self._inc_lifecycle_counter()
+
 
     def _gen_first_population(self):
         """

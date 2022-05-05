@@ -7,16 +7,13 @@ from survey_route_generation.data.vehicle_data import VehicleData
 from survey_route_generation.data.way_settings import MissionSettings
 from survey_route_generation.route_generator import RouteGenerator
 
-# init vehicle data
 vehicle_data = VehicleData(5000)
 
-# init way settings
 mission_settings = MissionSettings(
     [54.9611806, 20.21824722222222],
     [54.9331722, 20.370066666666666]
 )
 
-# init survey area points
 survey_area_points = np.array([
     [55.247697, 19.699547],
     [55.559281, 19.056831],
@@ -27,4 +24,5 @@ survey_area_points = np.array([
 route_generator = RouteGenerator(vehicle_data, mission_settings, survey_area_points)
 
 if __name__ == '__main__':
-    route_generator.generate_route()
+    route = route_generator.generate_route()
+    print(route)

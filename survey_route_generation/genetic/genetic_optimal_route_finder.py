@@ -62,7 +62,7 @@ class GeneticOptimalRouteFinder:
         """
         Добавить к значению размера поворотов маршрута повороты между точками маршрута.
         """
-        for i in range(route.size - 2):
+        for i in range(route.shape[0] - 2):
             point = self._get_gen_point(route[i])
             next_point = self._get_gen_point(route[i + 1])
             after_next_point = self._get_gen_point(route[i + 2])
@@ -75,8 +75,8 @@ class GeneticOptimalRouteFinder:
         """
         first_point = self._get_gen_point(route[0])
         second_point = self._get_gen_point(route[1])
-        last_point = self._get_gen_point(route.size - 1)
-        pre_last_point = self._get_gen_point(route.size - 2)
+        last_point = self._get_gen_point(route.shape[0] - 1)
+        pre_last_point = self._get_gen_point(route.shape[0] - 2)
 
         self._route_turns_angle += calc_3_points_angle(self.in_point, first_point, second_point)
         self._route_turns_angle += calc_3_points_angle(pre_last_point, last_point, self.out_point)
@@ -85,7 +85,7 @@ class GeneticOptimalRouteFinder:
         """
         Добавить к значению длины маршрута расстояния между точками маршрута.
         """
-        for i in range(route.size - 1):
+        for i in range(route.shape[0] - 1):
             point = self._get_gen_point(route[i])
             next_point = self._get_gen_point(route[i + 1])
 
@@ -96,10 +96,10 @@ class GeneticOptimalRouteFinder:
         Добавить к значению длины маршрута расстояния между точками входа и выхода.
         """
         first_point = self._get_gen_point(route[0])
-        last_point = self._get_gen_point(route.size - 1)
+        last_point = self._get_gen_point(route.shape[0] - 1)
 
         self._route_distance += calc_distance(self.in_point, first_point)
-        self.route_points += calc_distance(last_point, self.out_point)
+        self._route_distance += calc_distance(last_point, self.out_point)
 
     def _calc_route_turns_angle(self, route):
         """
@@ -132,10 +132,10 @@ class GeneticOptimalRouteFinder:
         """
         Скрестить несколько маршрутов в один.
         """
-        points_usage = np.full(self.route_points.size, False)
+        points_usage = np.full(self.route_points.shape[0], False)
 
         child_genotype = []
-        for i in range(self.route_points.size):
+        for i in range(self.route_points.shape[0]):
             for genotype in route_group:
                 point_index = genotype[i]
                 if not points_usage[point_index]:
@@ -149,8 +149,8 @@ class GeneticOptimalRouteFinder:
         Мутировать маршрут путём случайных перестановок в порядке следования.
         """
         for i in range(self._mutation_swap_count):
-            index1 = random.randint(0, self.route_points.size - 1)
-            index2 = random.randint(0, self.route_points.size - 1)
+            index1 = random.randint(0, self.route_points.shape[0] - 1)
+            index2 = random.randint(0, self.route_points.shape[0] - 1)
             temp = route[index1]
             route[index1] = route[index2]
             route[index2] = temp
@@ -161,7 +161,7 @@ class GeneticOptimalRouteFinder:
         """
         Посчитать максимальную величину суммы углов маршрута.
         """
-        self._max_route_turns_angle = 3.14 * self.route_points.size
+        self._max_route_turns_angle = 3.14 * self.route_points.shape[0]
 
     def _calc_route_max_distance(self):
         """
@@ -169,15 +169,15 @@ class GeneticOptimalRouteFinder:
         """
         self._max_route_distance = calc_distance(
             self.route_points[0],
-            self.route_points[self.route_points.size - 1]
-        ) * self.route_points.size * 10
+            self.route_points[self.route_points.shape[0] - 1]
+        ) * self.route_points.shape[0] * 10
 
     def _count_mutation_swaps(self):
         """
         Посчитать количество перестановок в маршруте при мутации.
         """
         if self.mutation_swap_type == "percent":
-            self._mutation_swap_count = math.floor(self.route_points.size * self.mutation_swap_value)
+            self._mutation_swap_count = math.floor(self.route_points.shape[0] * self.mutation_swap_value)
         else:
             self._mutation_swap_count = self.mutation_swap_value
 
@@ -191,7 +191,7 @@ class GeneticOptimalRouteFinder:
         """
         Создать генотип для точек маршрута.
         """
-        self._points_genome = np.arange(self.route_points.size)
+        self._points_genome = np.arange(self.route_points.shape[0])
 
     def find(self):
         """
@@ -207,7 +207,9 @@ class GeneticOptimalRouteFinder:
             self._route_fitness,
             lambda a: a,
             self._cross_routes,
-            self._mutate_route
+            self._mutate_route,
+            64,
+            0.6
         )
 
         return genetic_algo.find_best_genotype()

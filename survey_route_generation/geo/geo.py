@@ -22,7 +22,13 @@ def calc_3_points_angle(p1, p2, p3):
     b = calc_distance(p2, p3)
     c = calc_distance(p1, p3)
 
-    return math.acos((pow(a, 2) + pow(b, 2) - pow(c, 2)) / 2 * a * b)
+    cos = (pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b)
+    if cos > 1.0:
+        cos = 1.0
+    elif cos < -1.0:
+        cos = -1.0
+
+    return math.acos(cos)
 
 
 def gen_borders(area_points):

@@ -29,6 +29,7 @@ class RouteGenerator:
                 inside_points.append(key_point)
 
         self._inside_grid_key_points = np.array(inside_points)
+        print("Количество ключевых точек в маршруте:", self._inside_grid_key_points.shape[0])
 
     def _gen_keypoint_grid(self):
         """
@@ -36,34 +37,41 @@ class RouteGenerator:
         """
         generator = RectangleGridKeypointsGenerator(self._area_borders, self._keypoint_distance)
         self._grid_keypoints = generator.gen()
+        print("Количество ключевых точек в начальной сетке:", self._grid_keypoints.shape[0])
 
     def _calc_keypoint_distance(self):
         """
         Вычислить расстояние между ключевыми точками.
         """
         self._keypoint_distance = self.vehicle_data.vision_width * (1 - 0.05)
+        print("Расстояние между парой ключевых точек:", self._keypoint_distance)
 
     def _gen_area_borders(self):
         self._area_borders = gen_borders(self.survey_area_points)
+        print("Границы описанного прямоугольника зоны обследования:", self._area_borders)
 
     def _choose_in_point(self):
         """
         Выбрать точку влёта в зону обследования.
         """
-        self._area_in_point = PolygonNearestPointToPoint(self.survey_area_points, self.way_settings.start_point)
+        p = PolygonNearestPointToPoint(self.survey_area_points, self.way_settings.start_point)
+        self._area_in_point = p.find()
+        print("Точка входа в зону обследования:", self._area_in_point)
 
     def _choose_out_point(self):
         """
         Выбрать точку вылета из зоны обследования.
         """
-        self._area_out_point = PolygonNearestPointToPoint(self.survey_area_points, self.way_settings.end_point)
+        p = PolygonNearestPointToPoint(self.survey_area_points, self.way_settings.end_point)
+        self._area_out_point = p.find()
+        print("Точка выхода из зоны обследования:", self._area_out_point)
 
     def _find_optimal_route(self):
         """
         Найти оптимальный маршрут обследования.
         """
         finder = GeneticOptimalRouteFinder(
-            self._grid_keypoints,
+            self._inside_grid_key_points,
             self._area_in_point,
             self._area_out_point,
             0.2,
