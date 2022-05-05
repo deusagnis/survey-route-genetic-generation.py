@@ -20,7 +20,7 @@ class GeoJson:
         Добавить геометрический объект.
         """
         self.geo["features"].append({
-            "type": "feature",
+            "type": "Feature",
             "properties": {
                 "name": name,
             },
@@ -75,8 +75,6 @@ class GeoJson:
         """
         Записать текущую коллекцию объектов в файл.
         """
-        if not exists(filename):
-            return False
 
         f = open(filename, "w")
         res = f.write(json.dumps(self.geo))
