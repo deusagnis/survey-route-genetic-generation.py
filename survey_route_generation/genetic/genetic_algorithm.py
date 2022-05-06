@@ -13,7 +13,8 @@ class GeneticAlgorithm:
                  parents_count=2,
                  mutants_rate=0.125,
                  max_lifecycles=128,
-                 parents_choice_type="panmixia|inbreeding|outbreeding"
+                 parents_choice_type="panmixia",
+                 parents_similarity_type="fitness"
                  ):
         """
         :param population_size: Начальный размер популяции.
@@ -21,17 +22,19 @@ class GeneticAlgorithm:
         :param parents_count: Количество родителей при размножении.
         :param mutants_rate: Доля мутантов в популяции.
         :param max_lifecycles: Максимальное количество жизненных циклов эволюции.
-        :param parents_choice_type: Способ выбора родителей при размножении.
+        :param parents_choice_type: Способ выбора родителей при размножении: panmixia, inbreeding, outbreeding.
+        :param parents_similarity_type: Тип сравнения генотипов родителей при размножении: fitness, combination.
         """
         self.population_size = population_size
         self.selection_rate = selection_rate
         self.parents_count = parents_count
         self.mutants_rate = mutants_rate
         self.parents_choice_type = parents_choice_type
+        self.parents_similarity_type = parents_similarity_type
         self.max_lifecycles = max_lifecycles
 
         self.genome = None
-        self.gen_comparison_func = None
+        self.genotype_comparison_func = None
         self.crossing_func = None
         self.mutation_func = None
         self.fitness_func = None
@@ -59,36 +62,82 @@ class GeneticAlgorithm:
         """
         self._parent_groups_count = math.floor(self._current_population.shape[0] / self.parents_count)
 
+    def _choose_genotype_sort_func(self):
+        """
+        Выбрать функцию для сортировки генотипов при скрещивании.
+        """
+        if self.parents_similarity_type == "fitness":
+            self._genotype_sort_func = self.fitness_func
+        else:
+            self._genotype_sort_func = self.genotype_comparison_func
+
+    def _inbreeding_group_parents(self):
+        """
+         Группировать родителей по принципу инбридинга.
+        """
+        sorted_population = sorted(self._current_population, key=self._genotype_sort_func)
+
+        parent_groups = []
+        group = []
+        for genotype_index in range(self._parent_groups_count * self.parents_count):
+            group.append(sorted_population[genotype_index])
+            if len(group) == self.parents_count:
+                parent_groups.append(np.array(group))
+                group = []
+
+        self._parent_groups = np.array(parent_groups)
+
+    def _outbreeding_group_parents(self):
+        """
+         Группировать родителей по принципу аутбридинга.
+        """
+        sorted_population = sorted(self._current_population, key=self._genotype_sort_func)
+
+        parent_groups = []
+
+        for group_index in range(self._parent_groups_count):
+            group = []
+            for group_parent_index in range(self.parents_count):
+                group.append(sorted_population[group_index * self.parents_count + group_parent_index])
+
+            parent_groups.append(group)
+
+        self._parent_groups = np.array(parent_groups)
+
+    def _panmixia_group_parents(self):
+        """
+         Группировать родителей по принципу панмиксии.
+        """
+        parent_groups = []
+        group = []
+        for genotype_index in self._genotype_indexes[:self._parent_groups_count * self.parents_count]:
+            group.append(self._current_population[genotype_index])
+            if len(group) == self.parents_count:
+                parent_groups.append(group)
+                group = []
+
+        self._parent_groups = np.array(parent_groups)
+
     def _create_inbreeding_parent_groups(self):
         """
-        TODO
-        :return:
+        Создать группы родителей популяции по принципу инбридинга.
         """
-        pass
+        self._choose_genotype_sort_func()
+        self._inbreeding_group_parents()
 
     def _create_outbreeding_parent_groups(self):
         """
-        TODO
-        :return:
+        Создать группы родителей популяции по принципу аутбридинга.
         """
-        pass
+        self._choose_genotype_sort_func()
+        self._outbreeding_group_parents()
 
     def _create_panmixia_parent_groups(self):
         """
         Создать группы родителей популяции по принципу панмиксии.
         """
         self._create_shuffled_genotype_indexes()
-        self._calc_groups_count()
-
-        parent_groups = []
-        group = []
-        for genotype_index in self._genotype_indexes[:self._parent_groups_count * self.parents_count]:
-            group.append(self._current_population[genotype_index])
-            if len(group) == self.parents_count:
-                parent_groups.append(np.array(group))
-                group = []
-
-        self._parent_groups = np.array(parent_groups)
+        self._panmixia_group_parents()
 
     def _calc_alive_counter(self):
         self._alive_counter = math.floor(self._current_population.shape[0] * self.selection_rate)
@@ -123,6 +172,8 @@ class GeneticAlgorithm:
         """
         Создать группы особей для размножения.
         """
+        self._calc_groups_count()
+
         if self.parents_choice_type == "inbreeding":
             self._create_inbreeding_parent_groups()
         elif self.parents_choice_type == "outbreeding":
@@ -214,7 +265,7 @@ class GeneticAlgorithm:
     def find_best_genotype(self,
                            genome,
                            fitness_func,
-                           gen_comparison_func,
+                           genotype_comparison_func,
                            crossing_func,
                            mutation_func
                            ):
@@ -223,13 +274,13 @@ class GeneticAlgorithm:
 
         :param genome: Используемый геном.
         :param fitness_func: Функция приспособленности.
-        :param gen_comparison_func: Функция сравнения генов.
+        :param genotype_comparison_func: Функция сравнения генотипов.
         :param crossing_func: Функция скрещивания особей.
         :param mutation_func: Функция мутации генотипа.
         """
         self.genome = genome
         self.fitness_func = fitness_func
-        self.gen_comparison_func = gen_comparison_func
+        self.genotype_comparison_func = genotype_comparison_func
         self.crossing_func = crossing_func
         self.mutation_func = mutation_func
 
