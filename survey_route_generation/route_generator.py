@@ -6,15 +6,16 @@ import numpy as np
 from survey_route_generation.geo.grid_keyponts_generator import RectangleGridKeypointsGenerator
 from survey_route_generation.geo.polygon_nearest_point_to_point import PolygonNearestPointToPoint
 from survey_route_generation.geo.geo import gen_borders
-from survey_route_generation.genetic.genetic_optimal_route_finder import GeneticOptimalRouteFinder
 from shapely.geometry import Point, Polygon
 
 
 class RouteGenerator:
-    def __init__(self, vehicle_data, way_settings, survey_area_points):
-        self.vehicle_data = vehicle_data
-        self.way_settings = way_settings
-        self.survey_area_points = survey_area_points
+    def __init__(self, genetic_optimal_route_finder):
+        self.genetic_optimal_route_finder = genetic_optimal_route_finder
+
+        self.vehicle_data = None
+        self.mission_settings = None
+        self.survey_area_points = None
 
     def _filter_keypoints(self):
         """
@@ -54,7 +55,7 @@ class RouteGenerator:
         """
         Выбрать точку влёта в зону обследования.
         """
-        p = PolygonNearestPointToPoint(self.survey_area_points, self.way_settings.start_point)
+        p = PolygonNearestPointToPoint(self.survey_area_points, self.mission_settings.start_point)
         self._area_in_point = p.find()
         print("Точка входа в зону обследования:", self._area_in_point)
 
@@ -62,7 +63,7 @@ class RouteGenerator:
         """
         Выбрать точку вылета из зоны обследования.
         """
-        p = PolygonNearestPointToPoint(self.survey_area_points, self.way_settings.end_point)
+        p = PolygonNearestPointToPoint(self.survey_area_points, self.mission_settings.end_point)
         self._area_out_point = p.find()
         print("Точка выхода из зоны обследования:", self._area_out_point)
 
@@ -70,17 +71,11 @@ class RouteGenerator:
         """
         Найти оптимальный маршрут обследования.
         """
-        finder = GeneticOptimalRouteFinder(
+        self.optimal_route = self.genetic_optimal_route_finder.find(
             self._inside_grid_key_points,
             self._area_in_point,
             self._area_out_point,
-            0.2,
-            "percent",
-            2,
-            1.5
         )
-
-        self.optimal_route = finder.find()
 
     def _gen_keypoints(self):
         """
@@ -98,12 +93,20 @@ class RouteGenerator:
         self._choose_in_point()
         self._choose_out_point()
 
-    def generate_route(self):
+    def generate_route(self, vehicle_data, mission_settings, survey_area_points):
         """
         Составить маршрут обследования зоны поиска.
         """
+        self.vehicle_data = vehicle_data
+        self.mission_settings = mission_settings
+        self.survey_area_points = survey_area_points
+
         self._choose_in_out_points()
         self._gen_keypoints()
         self._find_optimal_route()
 
-        return self.optimal_route
+        return {
+            "in_point": self._area_in_point,
+            "route": self.optimal_route,
+            "out_point": self._area_out_point,
+        }

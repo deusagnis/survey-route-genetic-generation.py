@@ -8,11 +8,6 @@ import numpy as np
 
 class GeneticAlgorithm:
     def __init__(self,
-                 genome,
-                 fitness_func,
-                 gen_comparison_func,
-                 crossing_func,
-                 mutation_func,
                  population_size=16,
                  selection_rate=0.5,
                  parents_count=2,
@@ -21,12 +16,6 @@ class GeneticAlgorithm:
                  parents_choice_type="panmixia|inbreeding|outbreeding"
                  ):
         """
-
-        :param genome: Используемый геном.
-        :param fitness_func: Функция приспособленности.
-        :param gen_comparison_func: Функция сравнения генов.
-        :param crossing_func: Функция скрещивания особей.
-        :param mutation_func: Функция мутации генотипа.
         :param population_size: Начальный размер популяции.
         :param selection_rate: Доля выживших при естественном отборе.
         :param parents_count: Количество родителей при размножении.
@@ -34,17 +23,18 @@ class GeneticAlgorithm:
         :param max_lifecycles: Максимальное количество жизненных циклов эволюции.
         :param parents_choice_type: Способ выбора родителей при размножении.
         """
-        self.genome = genome
-        self.fitness_func = fitness_func
-        self.gen_comparison_func = gen_comparison_func
-        self.crossing_func = crossing_func
-        self.mutation_func = mutation_func
         self.population_size = population_size
         self.selection_rate = selection_rate
         self.parents_count = parents_count
         self.mutants_rate = mutants_rate
         self.parents_choice_type = parents_choice_type
         self.max_lifecycles = max_lifecycles
+
+        self.genome = None
+        self.gen_comparison_func = None
+        self.crossing_func = None
+        self.mutation_func = None
+        self.fitness_func = None
 
         self._lifecycle_counter = 0
 
@@ -209,7 +199,6 @@ class GeneticAlgorithm:
             self._evolve()
             self._inc_lifecycle_counter()
 
-
     def _gen_first_population(self):
         """
         Создать первую популяцию.
@@ -222,10 +211,28 @@ class GeneticAlgorithm:
 
         self._current_population = np.array(population)
 
-    def find_best_genotype(self):
+    def find_best_genotype(self,
+                           genome,
+                           fitness_func,
+                           gen_comparison_func,
+                           crossing_func,
+                           mutation_func
+                           ):
         """
         Подобрать наилучший генотип путём эволюции.
+
+        :param genome: Используемый геном.
+        :param fitness_func: Функция приспособленности.
+        :param gen_comparison_func: Функция сравнения генов.
+        :param crossing_func: Функция скрещивания особей.
+        :param mutation_func: Функция мутации генотипа.
         """
+        self.genome = genome
+        self.fitness_func = fitness_func
+        self.gen_comparison_func = gen_comparison_func
+        self.crossing_func = crossing_func
+        self.mutation_func = mutation_func
+
         self._gen_first_population()
         self._estimate_population()
         self._evolution()

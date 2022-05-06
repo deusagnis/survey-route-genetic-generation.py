@@ -7,35 +7,32 @@ import random
 import numpy as np
 
 from survey_route_generation.geo.geo import calc_distance, calc_3_points_angle
-from survey_route_generation.genetic.genetic_algorithm import GeneticAlgorithm
 
 
 class GeneticOptimalRouteFinder:
     def __init__(self,
-                 route_points,
-                 in_point,
-                 out_point,
+                 genetic_algo,
                  mutation_swap_value=0.2,
                  mutation_swap_type="percent",
                  route_distance_weight=2,
                  route_turns_angle_weight=1.5
                  ):
         """
-        :param route_points: Точки маршрута, которые надо посетить.
-        :param in_point: Точка входа в зону обследования.
-        :param out_point: Точка выхода из зоны обследования.
+        :param genetic_algo: Генетический алгоритм.
         :param mutation_swap_value: Значение количества мутаций в генотипе.
         :param mutation_swap_type: Тип значения количества мутаций: точное число или процент от длины генотипа.
         :param route_distance_weight: Вес значимости сокращения длины маршрута для функции оценки приспособленности.
         :param route_turns_angle_weight: Вес значимости плавности маршрута для функции оценки приспособленности.
         """
-        self.route_points = route_points
-        self.in_point = in_point
-        self.out_point = out_point
+        self.genetic_algo = genetic_algo
         self.mutation_swap_value = mutation_swap_value
         self.mutation_swap_type = mutation_swap_type
         self.route_distance_weight = route_distance_weight
         self.route_turns_angle_weight = route_turns_angle_weight
+
+        self.route_points = None
+        self.in_point = None
+        self.out_point = None
 
     def _calc_route_fitness(self):
         """
@@ -128,6 +125,9 @@ class GeneticOptimalRouteFinder:
 
         return self._calc_route_fitness()
 
+    def _compare_routes(self, route1, route2):
+        return 0
+
     def _cross_routes(self, route_group):
         """
         Скрестить несколько маршрутов в один.
@@ -165,17 +165,13 @@ class GeneticOptimalRouteFinder:
         return np.array(route)
 
     def _find_best_genotype(self):
-        genetic_algo = GeneticAlgorithm(
+        self._best_genotype = self.genetic_algo.find_best_genotype(
             self._points_genome,
             self._route_fitness,
-            lambda a: a,
+            self._compare_routes,
             self._cross_routes,
             self._mutate_route,
-            64,
-            0.6
         )
-
-        self._best_genotype = genetic_algo.find_best_genotype()
 
     def _calc_max_turns_angle(self):
         """
@@ -213,10 +209,22 @@ class GeneticOptimalRouteFinder:
         """
         self._points_genome = np.arange(self.route_points.shape[0])
 
-    def find(self):
+    def find(self,
+             route_points,
+             in_point,
+             out_point
+             ):
         """
         Найти оптимальный маршрут.
+
+        :param route_points: Точки маршрута, которые надо посетить.
+        :param in_point: Точка входа в зону обследования.
+        :param out_point: Точка выхода из зоны обследования.
         """
+        self.route_points = route_points
+        self.in_point = in_point
+        self.out_point = out_point
+
         self._create_points_genome()
         self._count_mutation_swaps()
         self._calc_route_max_distance()
