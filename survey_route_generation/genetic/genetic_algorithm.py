@@ -219,7 +219,6 @@ class GeneticAlgorithm:
         """
         Проверить возможность продолжения эволюции.
         """
-
         return (self._lifecycle_counter < self.max_lifecycles
                 and (not hasattr(self, "_alive_counter") or self._alive_counter > 2))
 
@@ -247,6 +246,14 @@ class GeneticAlgorithm:
         Эволюционировать.
         """
         while self._continue_evolution():
+            print("Эволюционный цикл: ", self._lifecycle_counter)
+            print("Размер популяции:", self._current_population.shape[0])
+            print(
+                "Минимальное, среднее и максимальное значения приспособленности: ",
+                np.min(self._population_estimation),
+                np.average(self._population_estimation),
+                np.max(self._population_estimation)
+            )
             self._evolve()
             self._inc_lifecycle_counter()
 
