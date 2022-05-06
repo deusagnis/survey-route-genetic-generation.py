@@ -125,9 +125,6 @@ class GeneticOptimalRouteFinder:
 
         return self._calc_route_fitness()
 
-    def _compare_routes(self, route1, route2):
-        return 0
-
     def _cross_routes(self, route_group):
         """
         Скрестить несколько маршрутов в один.
@@ -143,6 +140,18 @@ class GeneticOptimalRouteFinder:
                     points_usage[point_index] = True
 
         return np.array(child_genotype)
+
+    def _calc_genotype_positions_weight(self, genotype):
+        """
+        Вычислить позиционный вес генотипа.
+        """
+        weight = 0
+        pos_index = 0
+        for point_index in genotype:
+            weight += pos_index * point_index
+            pos_index += 1
+
+        return weight
 
     def _mutate_route(self, route):
         """
@@ -168,7 +177,7 @@ class GeneticOptimalRouteFinder:
         self._best_genotype = self.genetic_algo.find_best_genotype(
             self._points_genome,
             self._route_fitness,
-            self._compare_routes,
+            self._calc_genotype_positions_weight,
             self._cross_routes,
             self._mutate_route,
         )
