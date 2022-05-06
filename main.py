@@ -12,7 +12,7 @@ from os.path import dirname, abspath
 ROOT_DIR = dirname(abspath(__file__))
 
 # Параметры БПЛА: ширина приборного зрения (м)
-vehicle_data = VehicleData(13000)
+vehicle_data = VehicleData(14000)
 
 # Настройки полётной миссии: координаты точки начала и точки завершения миссии
 mission_settings = MissionSettings(
@@ -31,9 +31,9 @@ survey_area_points = np.array([
 generator_factory = RouteGeneratorFactory()
 
 # Размер начальной популяции
-generator_factory.population_size = 256
+generator_factory.population_size = 512
 # Доля выживших особей при отборе
-generator_factory.selection_rate = 0.667
+generator_factory.selection_rate = 0.6
 # Количество генотипов при размножении
 generator_factory.parents_count = 2
 # Доля мутированных особей
@@ -52,7 +52,7 @@ generator_factory.mutation_swap_type = "percent"
 generator_factory.route_distance_weight = 1.5
 # Значимость увеличения плавности движения при оценке приспособленности
 generator_factory.route_turns_angle_weight = 1
-# Значимость количества самопересений маршрута при оценке приспособленности
+# Значимость количества самопересечений маршрута при оценке приспособленности
 generator_factory.route_self_intersection_weight = 1.5
 
 generator = generator_factory.make()
