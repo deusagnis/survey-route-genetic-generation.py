@@ -12,7 +12,7 @@ from os.path import dirname, abspath
 ROOT_DIR = dirname(abspath(__file__))
 
 # Параметры БПЛА: ширина приборного зрения (м)
-vehicle_data = VehicleData(15000)
+vehicle_data = VehicleData(13000)
 
 # Настройки полётной миссии: координаты точки начала и точки завершения миссии
 mission_settings = MissionSettings(
@@ -31,15 +31,15 @@ survey_area_points = np.array([
 generator_factory = RouteGeneratorFactory()
 
 # Размер начальной популяции
-generator_factory.population_size = 512
+generator_factory.population_size = 256
 # Доля выживших особей при отборе
-generator_factory.selection_rate = 0.6
+generator_factory.selection_rate = 0.667
 # Количество генотипов при размножении
 generator_factory.parents_count = 2
 # Доля мутированных особей
-generator_factory.mutants_rate = 0.1
+generator_factory.mutants_rate = 0.05
 # Максимальное число циклов смены популяции
-generator_factory.max_lifecycles = 256
+generator_factory.max_lifecycles = 128
 # Тип выбора родительских генотипов при скрещивании: panmixia, inbreeding, outbreeding
 generator_factory.parents_choice_type = "panmixia"
 # Тип сравнения генотипов при группировке родителей методами аутбридинга и инбридинга: fitness, combination
@@ -49,9 +49,11 @@ generator_factory.mutation_swap_value = 0.1
 # Тип числа мутаций: доля или конкретное число
 generator_factory.mutation_swap_type = "percent"
 # Значимость сокращения длины маршрута при оценке приспособленности
-generator_factory.route_distance_weight = 1
+generator_factory.route_distance_weight = 1.5
 # Значимость увеличения плавности движения при оценке приспособленности
-generator_factory.route_turns_angle_weight = 0
+generator_factory.route_turns_angle_weight = 1
+# Значимость количества самопересений маршрута при оценке приспособленности
+generator_factory.route_self_intersection_weight = 1.5
 
 generator = generator_factory.make()
 
@@ -64,7 +66,7 @@ route = generator.generate_route(
 
 geojson = GeoJson()
 
-filename = str(time.time()) + "_route.json"
+filename = "results\\" + str(time.time()) + "_route.json"
 
 polygon_coords = [survey_area_points[:, [1, 0]].tolist()]
 polygon_coords[0].append(polygon_coords[0][0])

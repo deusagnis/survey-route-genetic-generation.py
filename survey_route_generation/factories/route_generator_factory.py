@@ -15,7 +15,8 @@ class RouteGeneratorFactory:
                  mutation_swap_value=None,
                  mutation_swap_type=None,
                  route_distance_weight=None,
-                 route_turns_angle_weight=None
+                 route_turns_angle_weight=None,
+                 route_self_intersection_weight=None
                  ):
 
         self.population_size = population_size,
@@ -30,6 +31,7 @@ class RouteGeneratorFactory:
         self.mutation_swap_type = mutation_swap_type
         self.route_distance_weight = route_distance_weight
         self.route_turns_angle_weight = route_turns_angle_weight
+        self.route_self_intersection_weight = route_self_intersection_weight
 
     def make(self):
         genetic_algo = GeneticAlgorithm(
@@ -47,7 +49,8 @@ class RouteGeneratorFactory:
             self.mutation_swap_value,
             self.mutation_swap_type,
             self.route_distance_weight,
-            self.route_turns_angle_weight
+            self.route_turns_angle_weight,
+            self.route_self_intersection_weight
         )
 
         return RouteGenerator(

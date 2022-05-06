@@ -3,7 +3,7 @@
 """
 import math
 import random
-
+from shapely.geometry import LineString
 import numpy as np
 
 from survey_route_generation.geo.geo import calc_distance, calc_3_points_angle
@@ -15,7 +15,8 @@ class GeneticOptimalRouteFinder:
                  mutation_swap_value=0.2,
                  mutation_swap_type="percent",
                  route_distance_weight=2,
-                 route_turns_angle_weight=1.5
+                 route_turns_angle_weight=1.5,
+                 route_self_intersection_weight=2
                  ):
         """
         :param genetic_algo: Генетический алгоритм.
@@ -23,12 +24,14 @@ class GeneticOptimalRouteFinder:
         :param mutation_swap_type: Тип значения количества мутаций: точное число или процент от длины генотипа.
         :param route_distance_weight: Вес значимости сокращения длины маршрута для функции оценки приспособленности.
         :param route_turns_angle_weight: Вес значимости плавности маршрута для функции оценки приспособленности.
+        :param route_self_intersection_weight: Вес значимости самопересечений для функции оценки приспособленности.
         """
         self.genetic_algo = genetic_algo
         self.mutation_swap_value = mutation_swap_value
         self.mutation_swap_type = mutation_swap_type
         self.route_distance_weight = route_distance_weight
         self.route_turns_angle_weight = route_turns_angle_weight
+        self.route_self_intersection_weight = route_self_intersection_weight
 
         self.route_points = None
         self.in_point = None
@@ -39,9 +42,16 @@ class GeneticOptimalRouteFinder:
         Посчитать значение функции приспособленности.
         """
         return (self._normalized_route_turns_angle * self.route_turns_angle_weight -
-                self._normalized_route_distance * self.route_distance_weight +
-                self.route_distance_weight + self.route_turns_angle_weight
+                self._normalized_route_distance * self.route_distance_weight -
+                self._normalized_route_self_interactions * self.route_self_intersection_weight +
+                self.route_distance_weight + self.route_turns_angle_weight + self.route_self_intersection_weight
                 )
+
+    def _normalize_route_self_interactions(self):
+        """
+        Нормализовать значение количества самопересечений маршрута.
+        """
+        self._normalized_route_self_interactions = self._route_self_interactions / self._max_route_self_restrictions
 
     def _normalize_route_turns_angle(self):
         """
@@ -98,6 +108,22 @@ class GeneticOptimalRouteFinder:
         self._route_distance += calc_distance(self.in_point, first_point)
         self._route_distance += calc_distance(last_point, self.out_point)
 
+    def _calc_route_self_intersection(self, route):
+        """
+        Посчитать количество само-пересечений.
+        """
+        self._route_self_interactions = 0
+        for i in range(route.shape[0] - 1):
+            point1 = self._get_gen_point(route[i])
+            point2 = self._get_gen_point(route[i + 1])
+            line1 = LineString([point1, point2])
+            for j in range(i, route.shape[0] - 1):
+                point3 = self._get_gen_point(route[j])
+                point4 = self._get_gen_point(route[j])
+                line2 = LineString([point3, point4])
+                if line1.crosses(line2):
+                    self._route_self_interactions += 1
+
     def _calc_route_turns_angle(self, route):
         """
         Посчитать сумму углов поворотов маршрута.
@@ -120,8 +146,11 @@ class GeneticOptimalRouteFinder:
         """
         self._calc_route_distance(route)
         self._calc_route_turns_angle(route)
+        self._calc_route_self_intersection(route)
+
         self._normalize_route_distance()
         self._normalize_route_turns_angle()
+        self._normalize_route_self_interactions()
 
         return self._calc_route_fitness()
 
@@ -167,6 +196,9 @@ class GeneticOptimalRouteFinder:
         return route
 
     def _genotype_to_route(self, genotype):
+        """
+        Собрать маршрут по генотипу.
+        """
         route = []
         for gen in genotype:
             route.append(self._get_gen_point(gen))
@@ -174,6 +206,9 @@ class GeneticOptimalRouteFinder:
         return np.array(route)
 
     def _find_best_genotype(self):
+        """
+        Подобрать оптимальный маршрут.
+        """
         self._best_genotype = self.genetic_algo.find_best_genotype(
             self._points_genome,
             self._route_fitness,
@@ -182,7 +217,13 @@ class GeneticOptimalRouteFinder:
             self._mutate_route,
         )
 
-    def _calc_max_turns_angle(self):
+    def _calc_route_max_self_intersections(self):
+        """
+        Посчитать максимальную величину количества самопересечений маршрута.
+        """
+        self._max_route_self_restrictions = 2 * self.route_points.shape[0]
+
+    def _calc_route_max_turns_angle(self):
         """
         Посчитать максимальную величину суммы углов маршрута.
         """
@@ -237,7 +278,9 @@ class GeneticOptimalRouteFinder:
         self._create_points_genome()
         self._count_mutation_swaps()
         self._calc_route_max_distance()
-        self._calc_max_turns_angle()
+        self._calc_route_max_turns_angle()
+        self._calc_route_max_self_intersections()
+
         self._find_best_genotype()
 
         return self._genotype_to_route(self._best_genotype)
