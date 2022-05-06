@@ -5,7 +5,6 @@ import math
 import random
 from shapely.geometry import LineString
 import numpy as np
-
 from survey_route_generation.geo.geo import calc_distance, calc_3_points_angle
 
 
@@ -65,16 +64,25 @@ class GeneticOptimalRouteFinder:
         """
         self._normalized_route_distance = self._route_distance / self._max_route_distance
 
-    def _add_route_angles(self, route):
+    def _add_route_angles(self, route, route_index):
         """
         Добавить к значению размера поворотов маршрута повороты между точками маршрута.
         """
-        for i in range(route.shape[0] - 2):
-            point = self._get_gen_point(route[i])
-            next_point = self._get_gen_point(route[i + 1])
-            after_next_point = self._get_gen_point(route[i + 2])
+        if route_index < (route.shape[0] - 2):
+            point = self._get_gen_point(route[route_index])
+            next_point = self._get_gen_point(route[route_index + 1])
+            after_next_point = self._get_gen_point(route[route_index + 2])
 
             self._route_turns_angle += calc_3_points_angle(point, next_point, after_next_point)
+
+    def _calc_fitness_values(self, route):
+        """
+        Вычислить ключевые значения маршрута для функции приспособленности.
+        """
+        for route_index in range(route.shape[0] - 1):
+            self._add_route_distance(route, route_index)
+            self._add_route_angles(route, route_index)
+            self._calc_route_self_intersection(route, route_index)
 
     def _add_start_end_angles(self, route):
         """
@@ -88,15 +96,14 @@ class GeneticOptimalRouteFinder:
         self._route_turns_angle += calc_3_points_angle(self.in_point, first_point, second_point)
         self._route_turns_angle += calc_3_points_angle(pre_last_point, last_point, self.out_point)
 
-    def _add_route_distance(self, route):
+    def _add_route_distance(self, route, route_index):
         """
         Добавить к значению длины маршрута расстояния между точками маршрута.
         """
-        for i in range(route.shape[0] - 1):
-            point = self._get_gen_point(route[i])
-            next_point = self._get_gen_point(route[i + 1])
+        point = self._get_gen_point(route[route_index])
+        next_point = self._get_gen_point(route[route_index + 1])
 
-            self._route_distance += calc_distance(point, next_point)
+        self._route_distance += calc_distance(point, next_point)
 
     def _add_start_end_distances(self, route):
         """
@@ -108,45 +115,39 @@ class GeneticOptimalRouteFinder:
         self._route_distance += calc_distance(self.in_point, first_point)
         self._route_distance += calc_distance(last_point, self.out_point)
 
-    def _calc_route_self_intersection(self, route):
+    def _calc_route_self_intersection(self, route, route_index):
         """
         Посчитать количество само-пересечений.
         """
-        self._route_self_interactions = 0
-        for i in range(route.shape[0] - 1):
-            point1 = self._get_gen_point(route[i])
-            point2 = self._get_gen_point(route[i + 1])
-            line1 = LineString([point1, point2])
-            for j in range(i, route.shape[0] - 1):
-                point3 = self._get_gen_point(route[j])
-                point4 = self._get_gen_point(route[j])
-                line2 = LineString([point3, point4])
-                if line1.crosses(line2):
-                    self._route_self_interactions += 1
+        point = self._get_gen_point(route[route_index])
+        next_point = self._get_gen_point(route[route_index + 1])
+        line1 = LineString([point, next_point])
 
-    def _calc_route_turns_angle(self, route):
-        """
-        Посчитать сумму углов поворотов маршрута.
-        """
-        self._route_turns_angle = 0
-        self._add_start_end_angles(route)
-        self._add_route_angles(route)
+        for j in range(route_index, route.shape[0] - 1):
+            point3 = self._get_gen_point(route[j])
+            point4 = self._get_gen_point(route[j])
+            line2 = LineString([point3, point4])
+            if line1.crosses(line2):
+                self._route_self_interactions += 1
 
-    def _calc_route_distance(self, route):
+    def _init_fitness_values(self):
         """
-        Посчитать суммарное расстояние маршрута.
+        Обнулить значения для функции приспособленности.
         """
         self._route_distance = 0
-        self._add_start_end_distances(route)
-        self._add_route_distance(route)
+        self._route_turns_angle = 0
+        self._route_self_interactions = 0
 
     def _route_fitness(self, route):
         """
         Посчитать приспособленность маршрута.
         """
-        self._calc_route_distance(route)
-        self._calc_route_turns_angle(route)
-        self._calc_route_self_intersection(route)
+        self._init_fitness_values()
+
+        self._add_start_end_distances(route)
+        self._add_start_end_angles(route)
+
+        self._calc_fitness_values(route)
 
         self._normalize_route_distance()
         self._normalize_route_turns_angle()
