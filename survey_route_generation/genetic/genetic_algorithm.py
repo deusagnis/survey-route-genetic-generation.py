@@ -2,7 +2,7 @@
 Реализация генетического алгоритма.
 """
 import math
-
+import logging
 import numpy as np
 
 
@@ -246,13 +246,13 @@ class GeneticAlgorithm:
         Эволюционировать.
         """
         while self._continue_evolution():
-            print("Эволюционный цикл: ", self._lifecycle_counter)
-            print("Размер популяции:", self._current_population.shape[0])
-            print(
-                "Минимальное, среднее и максимальное значения приспособленности: ",
-                np.min(self._population_estimation),
-                np.average(self._population_estimation),
-                np.max(self._population_estimation)
+            logging.info("Эволюционный цикл: \t" + str(self._lifecycle_counter))
+            logging.info("Размер популяции: \t" + str(self._current_population.shape[0]))
+            logging.info(
+                "Минимальное, среднее и максимальное значения приспособленности: " +
+                "\t" + str(np.min(self._population_estimation)) +
+                "\t" + str(np.average(self._population_estimation)) +
+                "\t" + str(np.max(self._population_estimation))
             )
             self._evolve()
             self._inc_lifecycle_counter()
