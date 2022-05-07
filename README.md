@@ -2,7 +2,7 @@
 
 A study project for survey generation route of geographical coordinates using genetic algorithm.
 
-To compile python to exe for def use command:
+To compile python to exe for dev use command:
 
 ``
 python -m nuitka main.py
