@@ -35,6 +35,7 @@ class GeneticOptimalRouteFinder:
         self.route_points = None
         self.in_point = None
         self.out_point = None
+        self.epsilon = 0.000000001
 
     def _calc_route_fitness(self):
         """
@@ -80,9 +81,14 @@ class GeneticOptimalRouteFinder:
         Вычислить ключевые значения маршрута для функции приспособленности.
         """
         for route_index in range(route.shape[0] - 1):
-            self._add_route_distance(route, route_index)
-            self._add_route_angles(route, route_index)
-            self._calc_route_self_intersection(route, route_index)
+            if self.route_distance_weight > self.epsilon:
+                self._add_route_distance(route, route_index)
+
+            if self.route_turns_angle_weight > self.epsilon:
+                self._add_route_angles(route, route_index)
+
+            if self.route_self_intersection_weight > self.epsilon:
+                self._calc_route_self_intersection(route, route_index)
 
     def _add_start_end_angles(self, route):
         """
@@ -138,20 +144,32 @@ class GeneticOptimalRouteFinder:
         self._route_turns_angle = 0
         self._route_self_interactions = 0
 
+        self._normalized_route_distance = 0
+        self._normalized_route_turns_angle = 0
+        self._normalized_route_self_interactions = 0
+
     def _route_fitness(self, route):
         """
         Посчитать приспособленность маршрута.
         """
         self._init_fitness_values()
 
-        self._add_start_end_distances(route)
-        self._add_start_end_angles(route)
+        if self.route_distance_weight > self.epsilon:
+            self._add_start_end_distances(route)
+
+        if self.route_turns_angle_weight > self.epsilon:
+            self._add_start_end_angles(route)
 
         self._calc_fitness_values(route)
 
-        self._normalize_route_distance()
-        self._normalize_route_turns_angle()
-        self._normalize_route_self_interactions()
+        if self.route_distance_weight > self.epsilon:
+            self._normalize_route_distance()
+
+        if self.route_turns_angle_weight > self.epsilon:
+            self._normalize_route_turns_angle()
+
+        if self.route_self_intersection_weight > self.epsilon:
+            self._normalize_route_self_interactions()
 
         return self._calc_route_fitness()
 
