@@ -132,18 +132,12 @@ class GeneticOptimalRouteFinder:
         next_point = self._get_gen_point(route[route_index + 1])
         line1 = LineString([point, next_point])
 
-        for j in range(route_index, route.shape[0] - 1):
+        for j in range(route_index + 1, route.shape[0] - 1):
             point3 = self._get_gen_point(route[j])
-            point4 = self._get_gen_point(route[j])
+            point4 = self._get_gen_point(route[j+1])
             line2 = LineString([point3, point4])
             if line1.crosses(line2):
                 self._route_self_interactions += 1
-        # for j in range(route_index + 1, route.shape[0] - 1):
-        #     point3 = self._get_gen_point(route[j])
-        #     point4 = self._get_gen_point(route[j+1])
-        #     line2 = LineString([point3, point4])
-        #     if line1.crosses(line2):
-        #         self._route_self_interactions += 1
 
     def _init_fitness_values(self):
         """
