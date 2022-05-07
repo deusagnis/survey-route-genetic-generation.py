@@ -17,7 +17,7 @@ def main():
     log_dir = root_dir + "\\logs"
 
     # Параметры БПЛА: ширина приборного зрения (м)
-    vehicle_data = VehicleData(15000)
+    vehicle_data = VehicleData(13000)
 
     # Настройки полётной миссии: координаты точки начала и точки завершения миссии
     mission_settings = MissionSettings(
@@ -42,7 +42,7 @@ def main():
     # Количество генотипов при размножении
     generator_factory.parents_count = 2
     # Доля мутированных особей
-    generator_factory.mutants_rate = 0.05
+    generator_factory.mutants_rate = 0.15
     # Максимальное число циклов смены популяции
     generator_factory.max_lifecycles = 128
     # Тип выбора родительских генотипов при скрещивании: panmixia, inbreeding, outbreeding
@@ -59,6 +59,8 @@ def main():
     generator_factory.route_turns_angle_weight = 1.5
     # Значимость количества самопересечений маршрута при оценке приспособленности
     generator_factory.route_self_intersection_weight = 3
+    # Применять ли к генотипам правило "ближайших точек"
+    generator_factory.repair_route_genotypes = True
 
     generator = generator_factory.make()
 

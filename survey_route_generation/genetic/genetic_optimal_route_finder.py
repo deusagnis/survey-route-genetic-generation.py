@@ -3,8 +3,8 @@
 """
 import math
 import random
-from shapely.geometry import LineString
 import numpy as np
+from shapely.geometry import LineString
 from survey_route_generation.geo.geo import calc_distance, calc_3_points_angle
 
 
@@ -15,7 +15,8 @@ class GeneticOptimalRouteFinder:
                  mutation_swap_type="percent",
                  route_distance_weight=2,
                  route_turns_angle_weight=1.5,
-                 route_self_intersection_weight=2
+                 route_self_intersection_weight=2,
+                 repair_route_genotypes=True
                  ):
         """
         :param genetic_algo: Генетический алгоритм.
@@ -24,6 +25,7 @@ class GeneticOptimalRouteFinder:
         :param route_distance_weight: Вес значимости сокращения длины маршрута для функции оценки приспособленности.
         :param route_turns_angle_weight: Вес значимости плавности маршрута для функции оценки приспособленности.
         :param route_self_intersection_weight: Вес значимости самопересечений для функции оценки приспособленности.
+        :param repair_route_genotypes: Применять ли к генотипам правило "ближайших точек".
         """
         self.genetic_algo = genetic_algo
         self.mutation_swap_value = mutation_swap_value
@@ -31,6 +33,7 @@ class GeneticOptimalRouteFinder:
         self.route_distance_weight = route_distance_weight
         self.route_turns_angle_weight = route_turns_angle_weight
         self.route_self_intersection_weight = route_self_intersection_weight
+        self.repair_route_genotypes = repair_route_genotypes
 
         self.route_points = None
         self.in_point = None
@@ -135,6 +138,12 @@ class GeneticOptimalRouteFinder:
             line2 = LineString([point3, point4])
             if line1.crosses(line2):
                 self._route_self_interactions += 1
+        # for j in range(route_index + 1, route.shape[0] - 1):
+        #     point3 = self._get_gen_point(route[j])
+        #     point4 = self._get_gen_point(route[j+1])
+        #     line2 = LineString([point3, point4])
+        #     if line1.crosses(line2):
+        #         self._route_self_interactions += 1
 
     def _init_fitness_values(self):
         """
@@ -187,7 +196,10 @@ class GeneticOptimalRouteFinder:
                     child_genotype.append(point_index)
                     points_usage[point_index] = True
 
-        return np.array(child_genotype)
+        if self.repair_route_genotypes:
+            return self._repair_genotype(np.array(child_genotype))
+        else:
+            return np.array(child_genotype)
 
     def _calc_genotype_positions_weight(self, genotype):
         """
@@ -212,6 +224,32 @@ class GeneticOptimalRouteFinder:
             route[index1] = route[index2]
             route[index2] = temp
 
+        if self.repair_route_genotypes:
+            return self._repair_genotype(route)
+        else:
+            return route
+
+    def _repair_genotype(self, route):
+        """
+        Корректировка генотипа.
+        """
+        for gen_index in range(route.shape[0] - 1):
+            point = self._get_gen_point(route[gen_index])
+
+            min_dist = None
+            nearest_next_gen_index = None
+            for next_gen_index in range(gen_index + 1, route.shape[0]):
+                next_point = self._get_gen_point(route[next_gen_index])
+                dist = calc_distance(point, next_point)
+                if min_dist is None or dist < min_dist:
+                    min_dist = dist
+                    nearest_next_gen_index = next_gen_index
+
+            if nearest_next_gen_index != (gen_index + 1):
+                temp = route[gen_index + 1]
+                route[gen_index + 1] = route[nearest_next_gen_index]
+                route[nearest_next_gen_index] = temp
+
         return route
 
     def _genotype_to_route(self, genotype):
@@ -234,6 +272,7 @@ class GeneticOptimalRouteFinder:
             self._calc_genotype_positions_weight,
             self._cross_routes,
             self._mutate_route,
+            # self._repair_genotype
         )
 
     def _calc_route_max_self_intersections(self):
@@ -274,7 +313,7 @@ class GeneticOptimalRouteFinder:
 
     def _create_points_genome(self):
         """
-        Создать генотип для точек маршрута.
+        Создать геном для точек маршрута.
         """
         self._points_genome = np.arange(self.route_points.shape[0])
 

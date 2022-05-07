@@ -35,9 +35,10 @@ class GeneticAlgorithm:
 
         self.genome = None
         self.genotype_comparison_func = None
+        self.fitness_func = None
         self.crossing_func = None
         self.mutation_func = None
-        self.fitness_func = None
+        # self.repair_genotype_func = None
 
         self._lifecycle_counter = 0
 
@@ -274,7 +275,8 @@ class GeneticAlgorithm:
                            fitness_func,
                            genotype_comparison_func,
                            crossing_func,
-                           mutation_func
+                           mutation_func,
+                           # repair_genotype_func
                            ):
         """
         Подобрать наилучший генотип путём эволюции.
@@ -284,12 +286,14 @@ class GeneticAlgorithm:
         :param genotype_comparison_func: Функция сравнения генотипов.
         :param crossing_func: Функция скрещивания особей.
         :param mutation_func: Функция мутации генотипа.
+        # :param repair_genotype_func: Функция исправления генотипа.
         """
         self.genome = genome
         self.fitness_func = fitness_func
         self.genotype_comparison_func = genotype_comparison_func
         self.crossing_func = crossing_func
         self.mutation_func = mutation_func
+        # self.repair_genotype_func = repair_genotype_func
 
         self._gen_first_population()
         self._estimate_population()

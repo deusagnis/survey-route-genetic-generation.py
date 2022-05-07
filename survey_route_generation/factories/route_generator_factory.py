@@ -19,7 +19,8 @@ class RouteGeneratorFactory:
                  mutation_swap_type=None,
                  route_distance_weight=None,
                  route_turns_angle_weight=None,
-                 route_self_intersection_weight=None
+                 route_self_intersection_weight=None,
+                 repair_route_genotypes=None
                  ):
 
         self.log_dir = log_dir
@@ -36,6 +37,7 @@ class RouteGeneratorFactory:
         self.route_distance_weight = route_distance_weight
         self.route_turns_angle_weight = route_turns_angle_weight
         self.route_self_intersection_weight = route_self_intersection_weight
+        self.repair_route_genotypes = repair_route_genotypes
 
         self._tune_logging()
 
@@ -73,7 +75,8 @@ class RouteGeneratorFactory:
             self.mutation_swap_type,
             self.route_distance_weight,
             self.route_turns_angle_weight,
-            self.route_self_intersection_weight
+            self.route_self_intersection_weight,
+            self.repair_route_genotypes
         )
 
         return RouteGenerator(
