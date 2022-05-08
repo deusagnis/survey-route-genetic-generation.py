@@ -1,2 +1,5 @@
 venv
 .idea
+output/data/*
+output/logs/*
+output/results/*

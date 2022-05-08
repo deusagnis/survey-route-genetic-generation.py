@@ -12,11 +12,12 @@ from os.path import dirname, abspath
 from survey_route_generation.logging.logging import tune_logging
 import logging
 
+
 def main():
     # Корневая директория
     root_dir = dirname(abspath(__file__))
-    log_dir = root_dir + "\\logs"
-    data_dir = root_dir + "\\data"
+    log_dir = root_dir + "\\output\\logs"
+    data_dir = root_dir + "\\output\\data"
 
     tune_logging(True, False, log_dir)
 
@@ -83,7 +84,7 @@ def main():
 
     geojson = GeoJson()
 
-    result_file = root_dir + "\\results\\" + str(time.time()) + "_route.json"
+    result_file = root_dir + "\\output\\results\\route_" + str(time.time()) + ".json"
 
     polygon_coords = [survey_area_points[:, [1, 0]].tolist()]
     polygon_coords[0].append(polygon_coords[0][0])
