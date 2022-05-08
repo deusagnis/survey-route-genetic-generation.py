@@ -77,7 +77,7 @@ class DataKeeper:
         self.data_spot["mutations"]["swap_count"] = self._data_object.mutation_swap_count
         self.data_spot["route_fitness"]["max_distance"] = self._data_object.max_route_distance
         self.data_spot["route_fitness"]["max_turns_angle"] = self._data_object.max_route_turns_angle
-        self.data_spot["route_fitness"]["max_self_restrictions"] = self._data_object.max_route_self_restrictions
+        self.data_spot["route_fitness"]["max_self_intersections"] = self._data_object.max_route_self_intersections
 
     def _gen_filename(self):
         self.filename = self.save_dir + "\\data_" + str(time.time()) + ".npy"

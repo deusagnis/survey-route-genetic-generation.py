@@ -65,7 +65,7 @@ class GeneticOptimalRouteFinder:
         """
         Нормализовать значение количества самопересечений маршрута.
         """
-        self.normalized_route_self_intersections = self.route_self_intersections / self.max_route_self_restrictions
+        self.normalized_route_self_intersections = self.route_self_intersections / self.max_route_self_intersections
 
     def _normalize_route_turns_angle(self):
         """
@@ -280,7 +280,7 @@ class GeneticOptimalRouteFinder:
         """
         Посчитать максимальную величину количества самопересечений маршрута.
         """
-        self.max_route_self_restrictions = 2 * self.route_points.shape[0]
+        self.max_route_self_intersections = 7 * self.route_points.shape[0]
 
     def _calc_route_max_turns_angle(self):
         """
