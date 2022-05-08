@@ -12,7 +12,7 @@ class GeneticOptimalRouteFinder:
     def __init__(self,
                  genetic_algo,
                  mutation_swap_value=0.2,
-                 mutation_swap_type="percent",
+                 mutation_swap_type="rate",
                  route_distance_weight=2,
                  route_turns_angle_weight=1.5,
                  route_self_intersection_weight=2,
@@ -301,7 +301,7 @@ class GeneticOptimalRouteFinder:
         """
         Посчитать количество перестановок в маршруте при мутации.
         """
-        if self.mutation_swap_type == "percent":
+        if self.mutation_swap_type == "rate":
             self.mutation_swap_count = math.floor(self.route_points.shape[0] * self.mutation_swap_value)
         else:
             self.mutation_swap_count = self.mutation_swap_value
