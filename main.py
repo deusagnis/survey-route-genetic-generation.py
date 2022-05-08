@@ -7,17 +7,39 @@ from survey_route_generation.data.vehicle_data import VehicleData
 from survey_route_generation.data.mission_settings import MissionSettings
 from survey_route_generation.factories.route_generator_factory import RouteGeneratorFactory
 from survey_route_generation.geo.geojson import GeoJson
+from survey_route_generation.data.data_keeper import DataKeeper
 from os.path import dirname, abspath
 import logging
+
+
+def tune_logging(console_log=True, file_log=False, log_dir=None):
+    handlers = []
+    if console_log:
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+    if file_log:
+        filename = log_dir + "\\log_" + str(time.time()) + ".log"
+        file_handler = logging.FileHandler(filename, mode="w", encoding="utf-8")
+        file_handler.setLevel(logging.INFO)
+
+    logging.basicConfig(
+        level=logging.INFO,
+        handlers=handlers
+    )
 
 
 def main():
     # Корневая директория
     root_dir = dirname(abspath(__file__))
     log_dir = root_dir + "\\logs"
+    data_dir = root_dir + "\\data"
+
+    tune_logging(True, True, log_dir)
+
+    data_keeper = DataKeeper(data_dir)
 
     # Параметры БПЛА: ширина приборного зрения (м)
-    vehicle_data = VehicleData(13000)
+    vehicle_data = VehicleData(11000)
 
     # Настройки полётной миссии: координаты точки начала и точки завершения миссии
     mission_settings = MissionSettings(
@@ -61,6 +83,8 @@ def main():
     generator_factory.route_self_intersection_weight = 3
     # Применять ли к генотипам правило "ближайших точек"
     generator_factory.repair_route_genotypes = True
+    # Задаём функцию сохранения данных для экспорта
+    generator_factory.data_keep_func = data_keeper.keep
 
     generator = generator_factory.make()
 
@@ -71,6 +95,7 @@ def main():
         survey_area_points
     )
     logging.info("Затрачено времени: \t" + str(time.time() - start_time))
+    data_keeper.save()
 
     geojson = GeoJson()
 

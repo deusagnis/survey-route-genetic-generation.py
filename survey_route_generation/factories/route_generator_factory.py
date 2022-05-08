@@ -1,8 +1,6 @@
 from survey_route_generation.genetic.genetic_algorithm import GeneticAlgorithm
 from survey_route_generation.genetic.genetic_optimal_route_finder import GeneticOptimalRouteFinder
 from survey_route_generation.route_generator import RouteGenerator
-import logging
-import time
 
 
 class RouteGeneratorFactory:
@@ -20,9 +18,11 @@ class RouteGeneratorFactory:
                  route_distance_weight=None,
                  route_turns_angle_weight=None,
                  route_self_intersection_weight=None,
-                 repair_route_genotypes=None
+                 repair_route_genotypes=None,
+                 data_keep_func=None
                  ):
 
+        self.data_keep_func = data_keep_func
         self.log_dir = log_dir
         self.population_size = population_size,
         self.selection_rate = selection_rate,
@@ -39,24 +39,7 @@ class RouteGeneratorFactory:
         self.route_self_intersection_weight = route_self_intersection_weight
         self.repair_route_genotypes = repair_route_genotypes
 
-        self._tune_logging()
-
-    def _tune_logging(self):
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        file_handler = logging.FileHandler(self._gen_filename(), mode="w", encoding="utf-8")
-        file_handler.setLevel(logging.INFO)
-
-        logging.basicConfig(
-            level=logging.INFO,
-            handlers=[
-                console_handler,
-                file_handler
-            ]
-        )
-
-    def _gen_filename(self):
-        return self.log_dir + "\\log_" + str(time.time()) + ".log"
+        self.data_keep_func = data_keep_func
 
     def make(self):
         genetic_algo = GeneticAlgorithm(
@@ -66,7 +49,8 @@ class RouteGeneratorFactory:
             self.mutants_rate,
             self.max_lifecycles,
             self.parents_choice_type,
-            self.parents_similarity_type
+            self.parents_similarity_type,
+            self.data_keep_func
         )
 
         genetic_optimal_route_finder = GeneticOptimalRouteFinder(
@@ -76,9 +60,10 @@ class RouteGeneratorFactory:
             self.route_distance_weight,
             self.route_turns_angle_weight,
             self.route_self_intersection_weight,
-            self.repair_route_genotypes
+            self.repair_route_genotypes,
+            self.data_keep_func
         )
 
         return RouteGenerator(
-            genetic_optimal_route_finder,
+            genetic_optimal_route_finder
         )

@@ -3,6 +3,7 @@
 """
 import math
 import logging
+import time
 import numpy as np
 
 
@@ -14,7 +15,8 @@ class GeneticAlgorithm:
                  mutants_rate=0.125,
                  max_lifecycles=128,
                  parents_choice_type="panmixia",
-                 parents_similarity_type="fitness"
+                 parents_similarity_type="fitness",
+                 data_keeper_func=None
                  ):
         """
         :param population_size: Начальный размер популяции.
@@ -24,6 +26,7 @@ class GeneticAlgorithm:
         :param max_lifecycles: Максимальное количество жизненных циклов эволюции.
         :param parents_choice_type: Способ выбора родителей при размножении: panmixia, inbreeding, outbreeding.
         :param parents_similarity_type: Тип сравнения генотипов родителей при размножении: fitness, combination.
+        :param data_keeper_func: Функция сохранения данных.
         """
         self.population_size = population_size
         self.selection_rate = selection_rate
@@ -33,26 +36,34 @@ class GeneticAlgorithm:
         self.parents_similarity_type = parents_similarity_type
         self.max_lifecycles = max_lifecycles
 
+        self.data_keeper_func = data_keeper_func
+
         self.genome = None
         self.genotype_comparison_func = None
         self.fitness_func = None
         self.crossing_func = None
         self.mutation_func = None
-        # self.repair_genotype_func = None
 
-        self._lifecycle_counter = 0
+        self.lifecycle_counter = 0
+
+    def _keep_data(self, event_name):
+        """
+        Сохранить данные в процессе работы.
+        """
+        if self.data_keeper_func is not None:
+            self.data_keeper_func(self, event_name)
 
     def _calc_mutants_count(self):
         """
         Подсчитать количества мутантов для популяции.
         """
-        self._mutants_count = math.floor(self._current_population.shape[0] * self.mutants_rate)
+        self.mutants_count = math.floor(self.current_population.shape[0] * self.mutants_rate)
 
     def _create_shuffled_genotype_indexes(self):
         """
         Создать перемешанный массив индексов генотипа.
         """
-        genotype_indexes = np.arange(self._current_population.shape[0])
+        genotype_indexes = np.arange(self.current_population.shape[0])
         np.random.shuffle(genotype_indexes)
 
         self._genotype_indexes = genotype_indexes
@@ -61,7 +72,7 @@ class GeneticAlgorithm:
         """
         Подсчитать количество групп родителей в популяции.
         """
-        self._parent_groups_count = math.floor(self._current_population.shape[0] / self.parents_count)
+        self.parent_groups_count = math.floor(self.current_population.shape[0] / self.parents_count)
 
     def _choose_genotype_sort_func(self):
         """
@@ -76,11 +87,11 @@ class GeneticAlgorithm:
         """
          Группировать родителей по принципу инбридинга.
         """
-        sorted_population = sorted(self._current_population, key=self._genotype_sort_func)
+        sorted_population = sorted(self.current_population, key=self._genotype_sort_func)
 
         parent_groups = []
         group = []
-        for genotype_index in range(self._parent_groups_count * self.parents_count):
+        for genotype_index in range(self.parent_groups_count * self.parents_count):
             group.append(sorted_population[genotype_index])
             if len(group) == self.parents_count:
                 parent_groups.append(np.array(group))
@@ -92,11 +103,11 @@ class GeneticAlgorithm:
         """
          Группировать родителей по принципу аутбридинга.
         """
-        sorted_population = sorted(self._current_population, key=self._genotype_sort_func)
+        sorted_population = sorted(self.current_population, key=self._genotype_sort_func)
 
         parent_groups = []
 
-        for group_index in range(self._parent_groups_count):
+        for group_index in range(self.parent_groups_count):
             group = []
             for group_parent_index in range(self.parents_count):
                 group.append(sorted_population[group_index * self.parents_count + group_parent_index])
@@ -111,8 +122,8 @@ class GeneticAlgorithm:
         """
         parent_groups = []
         group = []
-        for genotype_index in self._genotype_indexes[:self._parent_groups_count * self.parents_count]:
-            group.append(self._current_population[genotype_index])
+        for genotype_index in self._genotype_indexes[:self.parent_groups_count * self.parents_count]:
+            group.append(self.current_population[genotype_index])
             if len(group) == self.parents_count:
                 parent_groups.append(group)
                 group = []
@@ -140,15 +151,25 @@ class GeneticAlgorithm:
         self._create_shuffled_genotype_indexes()
         self._panmixia_group_parents()
 
+    def _calc_deaths_counter(self):
+        """
+        Вычислить количество смертей в популяции.
+        """
+        self.deaths_counter = self.current_population.shape[0] - self._alive_counter
+
     def _calc_alive_counter(self):
-        self._alive_counter = math.floor(self._current_population.shape[0] * self.selection_rate)
+        """
+        Вычислить количество генотипов, которые выживут при отборе.
+        """
+        self._alive_counter = math.floor(self.current_population.shape[0] * self.selection_rate)
 
     def _choose_best_estimations(self):
         """
         Выбрать лучшие показатели приспособленности при отборе популяции.
         """
         self._calc_alive_counter()
-        population_estimation = np.flip(np.sort(self._population_estimation))
+        self._calc_deaths_counter()
+        population_estimation = np.flip(np.sort(self.population_estimation))
 
         self._best_estimations = population_estimation[:self._alive_counter]
 
@@ -158,9 +179,9 @@ class GeneticAlgorithm:
         """
         alive_population = []
         for estimation in self._best_estimations:
-            genotype_index = np.where(self._population_estimation == estimation)[0][0]
-            alive_population.append(self._current_population[genotype_index])
-        self._current_population = np.array(alive_population)
+            genotype_index = np.where(self.population_estimation == estimation)[0][0]
+            alive_population.append(self.current_population[genotype_index])
+        self.current_population = np.array(alive_population)
 
     def _select_alive_genotypes(self):
         """
@@ -190,8 +211,9 @@ class GeneticAlgorithm:
         for genotypes_group in self._parent_groups:
             children.append(self.crossing_func(genotypes_group))
 
-        if len(children) > 1:
-            self._current_population = np.concatenate((self._current_population, np.array(children)))
+        self.children_count = len(children)
+        if self.children_count > 1:
+            self.current_population = np.concatenate((self.current_population, np.array(children)))
 
     def _mutate_genotypes(self):
         """
@@ -199,63 +221,72 @@ class GeneticAlgorithm:
         """
         self._create_shuffled_genotype_indexes()
         self._calc_mutants_count()
-        for genotype_index in self._genotype_indexes[:self._mutants_count]:
-            mutant = self.mutation_func(self._current_population[genotype_index])
-            self._current_population[genotype_index] = mutant
+        for genotype_index in self._genotype_indexes[:self.mutants_count]:
+            mutant = self.mutation_func(self.current_population[genotype_index])
+            self.current_population[genotype_index] = mutant
 
     def _inc_lifecycle_counter(self):
-        self._lifecycle_counter += 1
+        self.lifecycle_counter += 1
 
     def _evolve(self):
         """
         Провести один шаг эволюции.
         """
+        self._estimate_population()
+        self._keep_data("lifecycle_step_beginning")
+
+        logging.info("Эволюционный цикл: \t" + str(self.lifecycle_counter))
+        logging.info("Размер популяции: \t" + str(self.current_population.shape[0]))
+        logging.info(
+            "Минимальное, среднее и максимальное значения приспособленности: " +
+            "\t" + str(np.min(self.population_estimation)) +
+            "\t" + str(np.average(self.population_estimation)) +
+            "\t" + str(np.max(self.population_estimation))
+        )
+
         self._select_alive_genotypes()
         self._create_parents_groups()
         self._cross_population()
         self._mutate_genotypes()
-        self._estimate_population()
 
     def _continue_evolution(self) -> bool:
         """
         Проверить возможность продолжения эволюции.
         """
-        return (self._lifecycle_counter < self.max_lifecycles
+        return (self.lifecycle_counter < self.max_lifecycles
                 and (not hasattr(self, "_alive_counter") or self._alive_counter > 2))
 
     def _choose_best_genotype(self):
         """
         Выбрать наиболее приспособленный генотип из текущей популяции.
         """
-        max_estimation = np.max(self._population_estimation)
-        genotype_index = np.where(self._population_estimation == max_estimation)[0][0]
+        max_estimation = np.max(self.population_estimation)
+        genotype_index = np.where(self.population_estimation == max_estimation)[0][0]
 
-        return self._current_population[genotype_index]
+        return self.current_population[genotype_index]
 
     def _estimate_population(self):
         """
         Оценить приспособленность особей текущей популяции.
         """
         population_estimation = []
-        for genotype in self._current_population:
-            population_estimation.append(self.fitness_func(genotype))
+        for genotype_index in range(self.current_population.shape[0]):
+            genotype = self.current_population[genotype_index]
+            population_estimation.append(self.fitness_func(genotype, genotype_index))
 
-        self._population_estimation = np.array(population_estimation)
+        self.population_estimation = np.array(population_estimation)
 
     def _evolution(self):
         """
         Эволюционировать.
         """
         while self._continue_evolution():
-            logging.info("Эволюционный цикл: \t" + str(self._lifecycle_counter))
-            logging.info("Размер популяции: \t" + str(self._current_population.shape[0]))
-            logging.info(
-                "Минимальное, среднее и максимальное значения приспособленности: " +
-                "\t" + str(np.min(self._population_estimation)) +
-                "\t" + str(np.average(self._population_estimation)) +
-                "\t" + str(np.max(self._population_estimation))
-            )
+            start_lifecycle_time = time.time()
             self._evolve()
+            self.lifecycle_elapsed_time = time.time() - start_lifecycle_time
+
+            self._keep_data("lifecycle_step_ending")
+
             self._inc_lifecycle_counter()
 
     def _gen_first_population(self):
@@ -268,15 +299,14 @@ class GeneticAlgorithm:
             np.random.shuffle(genotype)
             population.append(genotype)
 
-        self._current_population = np.array(population)
+        self.current_population = np.array(population)
 
     def find_best_genotype(self,
                            genome,
                            fitness_func,
                            genotype_comparison_func,
                            crossing_func,
-                           mutation_func,
-                           # repair_genotype_func
+                           mutation_func
                            ):
         """
         Подобрать наилучший генотип путём эволюции.
@@ -286,17 +316,17 @@ class GeneticAlgorithm:
         :param genotype_comparison_func: Функция сравнения генотипов.
         :param crossing_func: Функция скрещивания особей.
         :param mutation_func: Функция мутации генотипа.
-        # :param repair_genotype_func: Функция исправления генотипа.
         """
         self.genome = genome
         self.fitness_func = fitness_func
         self.genotype_comparison_func = genotype_comparison_func
         self.crossing_func = crossing_func
         self.mutation_func = mutation_func
-        # self.repair_genotype_func = repair_genotype_func
+
+        self._keep_data("evolution_beginning")
 
         self._gen_first_population()
-        self._estimate_population()
+
         self._evolution()
 
         return self._choose_best_genotype()
