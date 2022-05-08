@@ -5,7 +5,6 @@ from survey_route_generation.route_generator import RouteGenerator
 
 class RouteGeneratorFactory:
     def __init__(self,
-                 log_dir,
                  population_size=None,
                  selection_rate=None,
                  parents_count=None,
@@ -23,7 +22,6 @@ class RouteGeneratorFactory:
                  ):
 
         self.data_keep_func = data_keep_func
-        self.log_dir = log_dir
         self.population_size = population_size,
         self.selection_rate = selection_rate,
         self.parents_count = parents_count,
