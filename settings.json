@@ -1,0 +1,27 @@
+{
+  "console_log": true,
+  "file_log": true,
+  "export_data": true,
+  "vision_width": 15000,
+  "start_point":  [54.9611806, 20.21824722222222],
+  "end_point": [54.9331722, 20.370066666666666],
+  "survey_area_points": [
+        [55.247697, 19.699547],
+        [55.559281, 19.056831],
+        [55.974931, 19.660008],
+        [55.836542, 20.503575]
+    ],
+  "population_size": 128,
+  "selection_rate": 0.666,
+  "parents_count": 2,
+  "mutants_rate": 0.15,
+  "max_lifecycles": 128,
+  "parents_choice_type": "outbreeding",
+  "parents_similarity_type": "fitness",
+  "mutation_swap_value": 0.1,
+  "mutation_swap_type": "rate",
+  "route_distance_weight": 1.5,
+  "route_turns_angle_weight": 1.5,
+  "route_self_intersection_weight": 1.5,
+  "repair_route_genotypes": true
+}

@@ -3,3 +3,5 @@ venv
 output/data/*
 output/logs/*
 output/results/*
+# Ignore dynaconf secret files
+.secrets.*
