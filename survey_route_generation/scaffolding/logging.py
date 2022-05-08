@@ -3,6 +3,9 @@ import logging
 
 
 def tune_logging(console_log=True, file_log=False, log_dir=None):
+    """
+    Настроить логирование.
+    """
     handlers = []
     if console_log:
         console_handler = logging.StreamHandler()
