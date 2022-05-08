@@ -57,15 +57,15 @@ class GeneticOptimalRouteFinder:
         """
         return (self.normalized_route_turns_angle * self.route_turns_angle_weight -
                 self.normalized_route_distance * self.route_distance_weight -
-                self.normalized_route_self_interactions * self.route_self_intersection_weight +
+                self.normalized_route_self_intersections * self.route_self_intersection_weight +
                 self.route_distance_weight + self.route_turns_angle_weight + self.route_self_intersection_weight
                 )
 
-    def _normalize_route_self_interactions(self):
+    def _normalize_route_self_intersections(self):
         """
         Нормализовать значение количества самопересечений маршрута.
         """
-        self.normalized_route_self_interactions = self.route_self_interactions / self.max_route_self_restrictions
+        self.normalized_route_self_intersections = self.route_self_intersections / self.max_route_self_restrictions
 
     def _normalize_route_turns_angle(self):
         """
@@ -145,7 +145,7 @@ class GeneticOptimalRouteFinder:
             point4 = self._get_gen_point(route[j+1])
             line2 = LineString([point3, point4])
             if line1.crosses(line2):
-                self.route_self_interactions += 1
+                self.route_self_intersections += 1
 
     def _init_fitness_values(self):
         """
@@ -153,11 +153,11 @@ class GeneticOptimalRouteFinder:
         """
         self.route_distance = 0
         self.route_turns_angle = 0
-        self.route_self_interactions = 0
+        self.route_self_intersections = 0
 
         self.normalized_route_distance = 0
         self.normalized_route_turns_angle = 0
-        self.normalized_route_self_interactions = 0
+        self.normalized_route_self_intersections = 0
 
     def _route_fitness(self, route, route_id=None):
         """
@@ -181,7 +181,7 @@ class GeneticOptimalRouteFinder:
             self._normalize_route_turns_angle()
 
         if self.route_self_intersection_weight > self.epsilon:
-            self._normalize_route_self_interactions()
+            self._normalize_route_self_intersections()
 
         self._keep_data("route_fitness_calculation")
 

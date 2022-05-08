@@ -42,10 +42,10 @@ class DataKeeper:
         genotype_fitness = {
             "route_distance": self._data_object.route_distance,
             "route_turns_angle": self._data_object.route_turns_angle,
-            "route_self_interactions": self._data_object.route_self_interactions,
+            "route_self_intersections": self._data_object.route_self_intersections,
             "normalized_route_distance": self._data_object.normalized_route_distance,
             "normalized_route_turns_angle": self._data_object.normalized_route_turns_angle,
-            "normalized_route_self_interactions": self._data_object.normalized_route_self_interactions
+            "normalized_route_self_intersections": self._data_object.normalized_route_self_intersections
         }
         self.data_spot["genotypes_fitness"].append(genotype_fitness)
 
