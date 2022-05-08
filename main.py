@@ -9,24 +9,8 @@ from survey_route_generation.factories.route_generator_factory import RouteGener
 from survey_route_generation.geo.geojson import GeoJson
 from survey_route_generation.data.data_keeper import DataKeeper
 from os.path import dirname, abspath
+from survey_route_generation.logging.logging import tune_logging
 import logging
-
-
-def tune_logging(console_log=True, file_log=False, log_dir=None):
-    handlers = []
-    if console_log:
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-    if file_log:
-        filename = log_dir + "\\log_" + str(time.time()) + ".log"
-        file_handler = logging.FileHandler(filename, mode="w", encoding="utf-8")
-        file_handler.setLevel(logging.INFO)
-
-    logging.basicConfig(
-        level=logging.INFO,
-        handlers=handlers
-    )
-
 
 def main():
     # Корневая директория
@@ -34,7 +18,7 @@ def main():
     log_dir = root_dir + "\\logs"
     data_dir = root_dir + "\\data"
 
-    tune_logging(True, True, log_dir)
+    tune_logging(True, False, log_dir)
 
     data_keeper = DataKeeper(data_dir)
 
@@ -55,10 +39,10 @@ def main():
         [55.836542, 20.503575],
     ])
 
-    generator_factory = RouteGeneratorFactory(log_dir)
+    generator_factory = RouteGeneratorFactory()
 
     # Размер начальной популяции
-    generator_factory.population_size = 64
+    generator_factory.population_size = 1024
     # Доля выживших особей при отборе
     generator_factory.selection_rate = 0.666
     # Количество генотипов при размножении
