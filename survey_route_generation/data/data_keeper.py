@@ -29,9 +29,11 @@ class DataKeeper:
         }
 
     def _handle_result_obtaining(self):
+        self.data_spot["route_result"]["in_point"] = self._data_object["in_point"]
         self.data_spot["route_result"]["route"] = self._data_object["route"]
         self.data_spot["route_result"]["route_fitness"] = self._data_object["route_fitness"]
         self.data_spot["route_result"]["route_hash"] = self._data_object["route_hash"]
+        self.data_spot["route_result"]["out_point"] = self._data_object["out_point"]
 
     def _handle_lifecycle_step_ending(self):
         population = {
