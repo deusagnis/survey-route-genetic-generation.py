@@ -64,6 +64,7 @@ def main():
         survey_area_points
     )
     logging.info("Затрачено времени: \t" + str(time.time() - start_time))
+    logging.info("Hash маршрута: \t" + str(route_result["route_hash"]))
     logging.info("Приспособленность маршрута: \t" + str(route_result["route_fitness"]))
 
     # Выгружаем данные промежуточных вычислений

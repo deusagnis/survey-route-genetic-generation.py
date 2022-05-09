@@ -29,6 +29,7 @@ class GeneticOptimalRouteFinder:
         :param repair_route_genotypes: Применять ли к генотипам правило "ближайших точек".
         :param data_keeper_func: Функция сохранения данных.
         """
+
         self.genetic_algo = genetic_algo
         self.mutation_swap_value = mutation_swap_value
         self.mutation_swap_type = mutation_swap_type
@@ -38,6 +39,8 @@ class GeneticOptimalRouteFinder:
         self.repair_route_genotypes = repair_route_genotypes
 
         self.data_keeper_func = data_keeper_func
+
+        self.best_genotype_hash = None
 
         self.route_points = None
         self.in_point = None
@@ -260,7 +263,11 @@ class GeneticOptimalRouteFinder:
         Собрать маршрут по генотипу.
         """
         route = []
+        pos_index = 0
         for gen in genotype:
+            self.best_genotype_hash += gen * pos_index
+            pos_index += 1
+
             route.append(self._get_gen_point(gen))
 
         return np.array(route)
@@ -342,6 +349,9 @@ class GeneticOptimalRouteFinder:
                     self._distance_matrix[i][j] = distance
                     self._distance_matrix[j][i] = distance
 
+    def _init_best_genotype_hash(self):
+        self.best_genotype_hash = 0
+
     def find(self,
              route_points,
              in_point,
@@ -361,6 +371,7 @@ class GeneticOptimalRouteFinder:
         self.out_point = out_point
         self.keypoint_distance = keypoint_distance
 
+        self._init_best_genotype_hash()
         self._create_distance_matrix()
         self._create_points_genome()
         self._count_mutation_swaps()
