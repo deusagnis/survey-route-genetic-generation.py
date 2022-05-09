@@ -263,7 +263,7 @@ class GeneticAlgorithm:
         max_estimation = np.max(self.population_estimation)
         genotype_index = np.where(self.population_estimation == max_estimation)[0][0]
 
-        return self.current_population[genotype_index]
+        return self.current_population[genotype_index], max_estimation
 
     def _estimate_population(self):
         """

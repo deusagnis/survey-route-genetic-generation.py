@@ -268,7 +268,7 @@ class GeneticOptimalRouteFinder:
         """
         Подобрать оптимальный маршрут.
         """
-        self._best_genotype = self.genetic_algo.find_best_genotype(
+        self._best_genotype, self.best_genotype_fitness = self.genetic_algo.find_best_genotype(
             self._points_genome,
             self._route_fitness,
             self._calc_genotype_positions_weight,

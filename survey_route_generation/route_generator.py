@@ -77,6 +77,7 @@ class RouteGenerator:
             self._area_in_point,
             self._area_out_point,
         )
+        self.route_fitness = self.genetic_optimal_route_finder.best_genotype_fitness
 
     def _gen_keypoints(self):
         """
@@ -109,5 +110,6 @@ class RouteGenerator:
         return {
             "in_point": self._area_in_point,
             "route": self.optimal_route,
+            "route_fitness": self.route_fitness,
             "out_point": self._area_out_point,
         }
