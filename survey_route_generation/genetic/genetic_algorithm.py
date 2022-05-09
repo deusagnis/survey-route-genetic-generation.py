@@ -289,6 +289,8 @@ class GeneticAlgorithm:
 
             self._inc_lifecycle_counter()
 
+        self._estimate_population()
+
     def _gen_first_population(self):
         """
         Создать первую популяцию.
