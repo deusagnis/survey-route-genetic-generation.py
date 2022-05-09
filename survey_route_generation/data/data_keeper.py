@@ -18,6 +18,7 @@ class DataKeeper:
     def _init_data_spot(self):
         self.data_spot = {
             "area": {},
+            "route_result": {},
             "mutations": {},
             "route_fitness": {},
             "evolution": {},
@@ -26,6 +27,11 @@ class DataKeeper:
             "estimations": [],
             "genotypes_fitness": []
         }
+
+    def _handle_result_obtaining(self):
+        self.data_spot["route_result"]["route"] = self._data_object["route"]
+        self.data_spot["route_result"]["route_fitness"] = self._data_object["route_fitness"]
+        self.data_spot["route_result"]["route_hash"] = self._data_object["route_hash"]
 
     def _handle_lifecycle_step_ending(self):
         population = {
@@ -98,6 +104,8 @@ class DataKeeper:
             self._handle_route_fitness_calculation()
         elif event_name == "lifecycle_step_ending":
             self._handle_lifecycle_step_ending()
+        elif event_name == "result_obtaining":
+            self._handle_result_obtaining()
         else:
             pass
 
@@ -106,6 +114,6 @@ class DataKeeper:
 
         return np.save(self.filename, self.data_spot)
 
-    def clear(self):
+    def clear_spot(self):
         del self.data_spot
         self._init_data_spot()
