@@ -64,6 +64,9 @@ def main():
         survey_area_points
     )
     logging.info("Затрачено времени: \t" + str(time.time() - start_time))
+    logging.info("Приспособленность маршрута: \t" + str(route_result["route_fitness"]))
+
+    # Выгружаем данные промежуточных вычислений
     if settings.export_data:
         data_keeper.save()
 
