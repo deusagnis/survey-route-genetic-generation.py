@@ -8,5 +8,6 @@ combine.build
 combine.dist
 main.build
 main.dist
+.ipynb_checkpoints
 # Ignore dynaconf secret files
 .secrets.*
