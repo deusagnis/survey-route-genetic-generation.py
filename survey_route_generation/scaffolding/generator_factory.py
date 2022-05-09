@@ -16,9 +16,9 @@ def tune_generator_factory(generator_factory):
     generator_factory.parents_choice_type = settings.parents_choice_type
     # Тип сравнения генотипов при группировке родителей методами аутбридинга и инбридинга: fitness, combination
     generator_factory.parents_similarity_type = settings.parents_similarity_type
-    # Число мутаций в генотипе
+    # Число мутаций в генотипе: доля или конкретное число
     generator_factory.mutation_swap_value = settings.mutation_swap_value
-    # Тип числа мутаций: доля или конкретное число
+    # Тип числа мутаций: rate, value
     generator_factory.mutation_swap_type = settings.mutation_swap_type
     # Значимость сокращения длины маршрута при оценке приспособленности
     generator_factory.route_distance_weight = settings.route_distance_weight
