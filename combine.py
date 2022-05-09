@@ -23,45 +23,7 @@ def main():
     generator_factory.data_keep_func = data_keeper.keep
 
     # Диапазоны параметров для комбинации
-    params_ranges = {
-        "population_size": [64
-                            # 128, 256, 512
-                            ],
-        "selection_rate": [0.4, 0.45, 0.5, 0.55, 0.6
-                           # 0.66, 0.667, 0.7
-                           ],
-        "parents_count": [2
-                          # 3, 4
-                          ],
-        "mutants_rate": [0
-                         # 0.05, 0.1, 0.15, 0.2
-                         ],
-        "parents_choice_type": ["panmixia", "inbreeding"
-                                # "outbreeding"
-                                ],
-        "parents_similarity_type": ["fitness"
-                                    # "combination"
-                                    ],
-        "mutation_swap_value": [0.01, 0.05,
-                                # 0.07, 0.1, 0.13
-                                ],
-        "route_distance_weight": [
-            # 0,
-            1
-            # 3
-        ],
-        "route_turns_angle_weight": [
-            # 0,
-            1
-            # 3
-        ],
-        "route_self_intersection_weight": [
-            # 0,
-            1
-            # 3
-        ],
-        "repair_route_genotypes": [False, True]
-    }
+    params_ranges = settings.params_ranges
 
     # Параметры БПЛА: ширина приборного зрения (м)
     vehicle_data = VehicleData(settings.vision_width)
