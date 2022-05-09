@@ -7,6 +7,15 @@ class DataKeeper:
     def __init__(self, save_dir):
         self.save_dir = save_dir
 
+        self.filename = None
+
+        self._population_size = 0
+        self._event_name = None
+        self._data_object = None
+
+        self._init_data_spot()
+
+    def _init_data_spot(self):
         self.data_spot = {
             "area": {},
             "mutations": {},
@@ -17,12 +26,6 @@ class DataKeeper:
             "estimations": [],
             "genotypes_fitness": []
         }
-
-        self.filename = None
-
-        self._population_size = 0
-        self._event_name = None
-        self._data_object = None
 
     def _handle_lifecycle_step_ending(self):
         population = {
@@ -102,3 +105,7 @@ class DataKeeper:
         self._gen_filename()
 
         return np.save(self.filename, self.data_spot)
+
+    def clear(self):
+        del self.data_spot
+        self._init_data_spot()
