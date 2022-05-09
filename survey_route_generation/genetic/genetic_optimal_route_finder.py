@@ -42,6 +42,7 @@ class GeneticOptimalRouteFinder:
         self.route_points = None
         self.in_point = None
         self.out_point = None
+        self.keypoint_distance = None
         self.epsilon = 0.000000001
 
     def _keep_data(self, event_name):
@@ -241,9 +242,9 @@ class GeneticOptimalRouteFinder:
         for gen_index in range(route.shape[0] - 1):
             min_dist = None
             nearest_next_gen_index = None
-            for next_gen_index in range(gen_index + 1, route.shape[0]):
+            for next_gen_index in range(route.shape[0] - 1, gen_index, -1):
                 dist = self._get_gens_distance(route[gen_index], route[next_gen_index])
-                if min_dist is None or dist < min_dist:
+                if min_dist is None or (dist < self.keypoint_distance * 1.15) or dist < min_dist:
                     min_dist = dist
                     nearest_next_gen_index = next_gen_index
 
@@ -344,11 +345,13 @@ class GeneticOptimalRouteFinder:
     def find(self,
              route_points,
              in_point,
-             out_point
+             out_point,
+             keypoint_distance
              ):
         """
         Найти оптимальный маршрут.
 
+        :param keypoint_distance: Расстояние между ключевыми точками.
         :param route_points: Точки маршрута, которые надо посетить.
         :param in_point: Точка входа в зону обследования.
         :param out_point: Точка выхода из зоны обследования.
@@ -356,6 +359,7 @@ class GeneticOptimalRouteFinder:
         self.route_points = route_points
         self.in_point = in_point
         self.out_point = out_point
+        self.keypoint_distance = keypoint_distance
 
         self._create_distance_matrix()
         self._create_points_genome()

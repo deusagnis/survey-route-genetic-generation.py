@@ -76,6 +76,7 @@ class RouteGenerator:
             self._inside_grid_key_points,
             self._area_in_point,
             self._area_out_point,
+            self._keypoint_distance
         )
         self.route_fitness = self.genetic_optimal_route_finder.best_genotype_fitness
 
