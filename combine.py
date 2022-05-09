@@ -18,8 +18,8 @@ def main():
 
     generator_factory = RouteGeneratorFactory()
 
-    generator_factory.max_lifecycles = 512
-    generator_factory.mutation_swap_type = "rate"
+    generator_factory.max_lifecycles = settings.max_lifecycles
+    generator_factory.mutation_swap_type = settings.mutation_swap_type
     generator_factory.data_keep_func = data_keeper.keep
 
     # Диапазоны параметров для комбинации
