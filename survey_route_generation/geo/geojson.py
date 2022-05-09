@@ -7,13 +7,18 @@ from os.path import exists
 
 
 class GeoJson:
-    """
-    Начальный шаблон для формата GeoJson.
-    """
-    geo = {
-        "type": "FeatureCollection",
-        "features": []
-    }
+    def __init__(self):
+        self.geo = None
+        self.init_template()
+
+    def init_template(self):
+        """
+        Начальный шаблон для формата GeoJson.
+        """
+        self.geo = {
+            "type": "FeatureCollection",
+            "features": []
+        }
 
     def _add_feature(self, name, geometry_type, coordinates):
         """
