@@ -15,7 +15,7 @@
   "selection_rate": 0.666,
   "parents_count": 2,
   "mutants_rate": 0.15,
-  "max_lifecycles": 128,
+  "max_lifecycles": 512,
   "parents_choice_type": "outbreeding",
   "parents_similarity_type": "fitness",
   "mutation_swap_value": 0.1,
