@@ -1,0 +1,40 @@
+{
+  "console_log": true,
+  "file_log": false,
+  "export_data": false,
+  "vision_width": 12500,
+  "start_point":  [54.9611806, 20.21824722222222],
+  "end_point": [54.9331722, 20.370066666666666],
+  "survey_area_points": [
+        [55.247697, 19.699547],
+        [55.559281, 19.056831],
+        [55.974931, 19.660008],
+        [55.836542, 20.503575]
+    ],
+  "population_size": 32,
+  "selection_rate": 0.666,
+  "parents_count": 2,
+  "mutants_rate": 0.15,
+  "max_lifecycles": 128,
+  "parents_choice_type": "outbreeding",
+  "parents_similarity_type": "fitness",
+  "mutation_swap_value": 0.1,
+  "mutation_swap_type": "rate",
+  "route_distance_weight": 1.5,
+  "route_turns_angle_weight": 1.5,
+  "route_self_intersection_weight": 1.5,
+  "repair_route_genotypes": true,
+  "params_ranges": {
+        "population_size": [64, 128, 256, 512],
+        "selection_rate": [0.4, 0.45, 0.5, 0.55, 0.6, 0.66, 0.667, 0.7],
+        "parents_count": [2, 3, 4],
+        "mutants_rate": [0, 0.05, 0.1, 0.15, 0.2],
+        "parents_choice_type": ["panmixia", "inbreeding", "outbreeding"],
+        "parents_similarity_type": ["fitness", "combination"],
+        "mutation_swap_value": [0.01, 0.05, 0.07, 0.1, 0.13],
+        "route_distance_weight": [0, 1, 3],
+        "route_turns_angle_weight": [0, 1, 3],
+        "route_self_intersection_weight": [0, 1, 3],
+        "repair_route_genotypes": [false, true]
+    }
+}
