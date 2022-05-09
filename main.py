@@ -6,6 +6,8 @@ import logging
 import numpy as np
 
 from env import ROOT_DIR
+from config import settings
+
 from survey_route_generation.data.vehicle_data import VehicleData
 from survey_route_generation.data.mission_settings import MissionSettings
 from survey_route_generation.factories.route_generator_factory import RouteGeneratorFactory
@@ -13,8 +15,6 @@ from survey_route_generation.scaffolding.geojson import save_result
 from survey_route_generation.data.data_keeper import DataKeeper
 from survey_route_generation.scaffolding.logging import tune_logging
 from survey_route_generation.scaffolding.generator_factory import tune_generator_factory
-
-from config import settings
 
 
 def main():
