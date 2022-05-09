@@ -5,7 +5,6 @@ import time
 import logging
 import numpy as np
 
-from env import ROOT_DIR
 from config import settings
 
 from survey_route_generation.data.vehicle_data import VehicleData
@@ -15,18 +14,15 @@ from survey_route_generation.scaffolding.geojson import save_result
 from survey_route_generation.data.data_keeper import DataKeeper
 from survey_route_generation.scaffolding.logging import tune_logging
 from survey_route_generation.scaffolding.generator_factory import tune_generator_factory
+from survey_route_generation.scaffolding.dirs import DATA_DIR, LOGS_DIR
 
 
 def main():
-    # Инициализируем директории
-    log_dir = ROOT_DIR + "\\output\\logs"
-    data_dir = ROOT_DIR + "\\output\\data"
-
     # Настраиваем логирование
-    tune_logging(settings.console_log, settings.file_log, log_dir)
+    tune_logging(settings.console_log, settings.file_log, LOGS_DIR)
 
     # Настраиваем экспорт данных о промежуточных вычислениях
-    data_keeper = DataKeeper(data_dir)
+    data_keeper = DataKeeper(DATA_DIR)
 
     data_keep_func = None
     if settings.export_data:

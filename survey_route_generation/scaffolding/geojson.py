@@ -1,13 +1,13 @@
 import time
 
-from env import ROOT_DIR
 from survey_route_generation.geo.geojson import GeoJson
+from survey_route_generation.scaffolding.dirs import RESULTS_DIR
 
 
 def save_result(route_result, survey_area_points, mission_settings):
     geojson = GeoJson()
 
-    result_file = ROOT_DIR + "\\output\\results\\route_" + str(time.time()) + ".json"
+    result_file = RESULTS_DIR + "\\route_" + str(time.time()) + ".json"
 
     polygon_coords = [survey_area_points[:, [1, 0]].tolist()]
     polygon_coords[0].append(polygon_coords[0][0])
