@@ -46,10 +46,16 @@ class Combinator:
         self._subscribe_signals()
 
     def _subscribe_signals(self):
+        """
+        Подписываем обработчик на сигналы завершения.
+        """
         signal.signal(signal.SIGINT, self._early_exit)
         signal.signal(signal.SIGTERM, self._early_exit)
 
     def _early_exit(self, _signum, _frame):
+        """
+        Сохраняем найденные результаты перед выходом.
+        """
         print("Сохраняем результат...")
         self.save()
         sys.exit(0)
