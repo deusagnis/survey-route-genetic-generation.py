@@ -1,5 +1,5 @@
 {
-  "console_log": true,
+  "console_log": false,
   "file_log": false,
   "export_data": false,
   "vision_width": 12500,
