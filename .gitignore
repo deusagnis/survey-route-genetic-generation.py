@@ -3,5 +3,10 @@ venv
 output/data/*
 output/logs/*
 output/results/*
+temp.py
+combine.build
+combine.dist
+main.build
+main.dist
 # Ignore dynaconf secret files
 .secrets.*
