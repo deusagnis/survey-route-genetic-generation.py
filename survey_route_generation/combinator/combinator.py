@@ -1,7 +1,9 @@
 """
 Перебор всех комбинаций заданных параметров с сохранением нескольких наилучших.
 """
+import sys
 import time
+import signal
 
 from survey_route_generation.console.console import cls
 from survey_route_generation.scaffolding.geojson import save_result
@@ -41,6 +43,16 @@ class Combinator:
         self.top_data_spots = []
 
         self._calc_combinations_amount()
+        self._subscribe_signals()
+
+    def _subscribe_signals(self):
+        signal.signal(signal.SIGINT, self._early_exit)
+        signal.signal(signal.SIGTERM, self._early_exit)
+
+    def _early_exit(self, _signum, _frame):
+        print("Сохраняем результат...")
+        self.save()
+        sys.exit(0)
 
     def _insert_data_spot(self):
         """
