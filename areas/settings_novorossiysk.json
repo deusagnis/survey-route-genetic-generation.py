@@ -21,7 +21,7 @@
         [44.67890692528533, 37.80807495117188],
         [44.69965362382473, 37.78919219970703]
     ],
-  "population_size": 32,
+  "population_size": 64,
   "selection_rate": 0.666,
   "parents_count": 2,
   "mutants_rate": 0.15,
