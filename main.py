@@ -65,6 +65,7 @@ def main():
 
     # Выгружаем данные промежуточных вычислений
     if settings.export_data:
+        data_keeper.keep(route_result, "result_obtaining")
         data_keeper.save()
 
     # Сохраняем найденный маршрут в формате GeoJson
