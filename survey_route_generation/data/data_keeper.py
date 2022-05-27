@@ -1,10 +1,16 @@
+"""
+Агрегатор промежуточных данных.
+"""
 import time
-
 import numpy as np
 
 
 class DataKeeper:
     def __init__(self, save_dir):
+        """
+        Инициализация значений.
+        :param save_dir: Директория сохранения результатов.
+        """
         self.save_dir = save_dir
 
         self.filename = None
@@ -16,6 +22,9 @@ class DataKeeper:
         self._init_data_spot()
 
     def _init_data_spot(self):
+        """
+        Инициализировать пустой спот данных.
+        """
         self.data_spot = {
             "area": {},
             "route_result": {},
@@ -29,6 +38,9 @@ class DataKeeper:
         }
 
     def _handle_result_obtaining(self):
+        """
+        Обработать событие получения результата.
+        """
         self.data_spot["route_result"]["in_point"] = self._data_object["in_point"]
         self.data_spot["route_result"]["route"] = self._data_object["route"]
         self.data_spot["route_result"]["route_fitness"] = self._data_object["route_fitness"]
@@ -36,6 +48,9 @@ class DataKeeper:
         self.data_spot["route_result"]["out_point"] = self._data_object["out_point"]
 
     def _handle_lifecycle_step_ending(self):
+        """
+        Обработать событие окончания эволюционного цикла.
+        """
         population = {
             "size": self._population_size,
             "elapsed_time": self._data_object.lifecycle_elapsed_time,
@@ -47,6 +62,9 @@ class DataKeeper:
         self.data_spot["populations"].append(population)
 
     def _handle_route_fitness_calculation(self):
+        """
+        Обработать событие вычисления функции приспособленности маршрута.
+        """
         if self._data_object.route_id is None:
             return
 
@@ -61,11 +79,17 @@ class DataKeeper:
         self.data_spot["genotypes_fitness"].append(genotype_fitness)
 
     def _handle_lifecycle_step_beginning(self):
+        """
+        Обработать событие начала эволюционного цикла.
+        """
         self._population_size = self._data_object.current_population.shape[0]
         self.data_spot["genotypes"].extend(self._data_object.current_population)
         self.data_spot["estimations"].extend(self._data_object.population_estimation)
 
     def _handle_evolution_beginning(self):
+        """
+        Обработать событие начала эволюции.
+        """
         self.data_spot["evolution"]["population_size"] = self._data_object.population_size
         self.data_spot["evolution"]["selection_rate"] = self._data_object.selection_rate
         self.data_spot["evolution"]["parents_count"] = self._data_object.parents_count
@@ -75,6 +99,9 @@ class DataKeeper:
         self.data_spot["evolution"]["max_lifecycles"] = self._data_object.max_lifecycles
 
     def _handle_genotype_search_beginning(self):
+        """
+        Обработать событие начала поиска лучшего генотипа.
+        """
         # Static:
         self.data_spot["area"]["route_points"] = self._data_object.route_points
         self.data_spot["area"]["in_point"] = self._data_object.in_point
@@ -91,9 +118,15 @@ class DataKeeper:
         self.data_spot["route_fitness"]["max_self_intersections"] = self._data_object.max_route_self_intersections
 
     def _gen_filename(self):
+        """
+        Сгенерировать имя файла.
+        """
         self.filename = self.save_dir + "\\data_" + str(time.time()) + ".npy"
 
     def keep(self, data_object, event_name):
+        """
+        Агрегировать данные.
+        """
         self._data_object = data_object
         self._event_name = event_name
         if event_name == "genotype_search_beginning":
@@ -112,10 +145,16 @@ class DataKeeper:
             pass
 
     def save(self):
+        """
+        Сохранить текущий спот данных.
+        """
         self._gen_filename()
 
         return np.save(self.filename, self.data_spot)
 
     def clear_spot(self):
+        """
+        Очистить текущий спот данных.
+        """
         del self.data_spot
         self._init_data_spot()

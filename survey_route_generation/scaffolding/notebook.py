@@ -8,6 +8,9 @@ def show_route_result(
         end_point,
         route_result
 ):
+    """
+    Показать результат сгенерированного маршрута в JupyterNotebook.
+    """
     area_polygon = Polygon(
         locations=area_points,
         stroke_color='blue',

@@ -1,3 +1,6 @@
+"""
+Фабрика генератора маршрута.
+"""
 from survey_route_generation.genetic.genetic_algorithm import GeneticAlgorithm
 from survey_route_generation.genetic.genetic_optimal_route_finder import GeneticOptimalRouteFinder
 from survey_route_generation.route_generator import RouteGenerator
@@ -20,6 +23,9 @@ class RouteGeneratorFactory:
                  repair_route_genotypes=None,
                  data_keep_func=None
                  ):
+        """
+        Инициализировать параметры.
+        """
 
         self.data_keep_func = data_keep_func
         self.population_size = population_size,
@@ -40,6 +46,9 @@ class RouteGeneratorFactory:
         self.data_keep_func = data_keep_func
 
     def make(self):
+        """
+        Создать объект генератора маршрута.
+        """
         genetic_algo = GeneticAlgorithm(
             self.population_size,
             self.selection_rate,

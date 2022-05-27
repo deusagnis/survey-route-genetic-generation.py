@@ -2,6 +2,9 @@ from config import settings
 
 
 def tune_generator_factory(generator_factory):
+    """
+    Настроить фабрику генераторов маршрута из файла настроек.
+    """
     # Размер начальной популяции
     generator_factory.population_size = settings.population_size
     # Доля выживших особей при отборе

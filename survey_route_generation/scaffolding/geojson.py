@@ -5,6 +5,9 @@ from survey_route_generation.scaffolding.dirs import RESULTS_DIR
 
 
 def save_result(route_result, survey_area_points, mission_settings):
+    """
+    Сохранить результат найденного маршрута в файл GeoJson.
+    """
     geojson = GeoJson()
 
     result_file = RESULTS_DIR + "\\route_" + str(time.time()) + ".json"
