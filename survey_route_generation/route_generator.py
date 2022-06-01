@@ -99,7 +99,7 @@ class RouteGenerator:
 
     def generate_route(self, vehicle_data, mission_settings, survey_area_points):
         """
-        Составить маршрут обследования зоны поиска.
+        Составить маршрут обследования зоны.
         """
         self.vehicle_data = vehicle_data
         self.mission_settings = mission_settings
